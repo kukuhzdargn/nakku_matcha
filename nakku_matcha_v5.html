@@ -1,8 +1,21 @@
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#7A9E6A">
+<title>Nakku Matcha</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body,div,span,input,select,button{font-family:var(--font-sans)}
-.app{min-height:600px;background:var(--color-background-tertiary)}
+body,div,span,input,select,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.app{min-height:100vh;background:var(--color-background-tertiary)}
+body{background:var(--color-background-tertiary);min-height:100vh}
 .hdr{background:#7A9E6A;padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
 .hdr-l{display:flex;align-items:center;gap:9px}
 .nk-logo-sm{width:36px;height:36px;border-radius:50%;overflow:hidden;background:#fff;flex-shrink:0}
@@ -137,8 +150,36 @@ tr:last-child td{border-bottom:none}
 /* Toast slide up */
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(-4px)}}
 
-/* Smooth stok bar fill */
-.sbb{transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
+/* Responsive */
+@media(max-width:480px){
+  .mg{grid-template-columns:1fr 1fr}
+  .fr{grid-template-columns:1fr 1fr}
+  .ml{grid-template-columns:1fr}
+  .ps{grid-template-columns:1fr 1fr}
+  .content{padding:10px}
+  .card{padding:12px 13px}
+  .hdr{padding:10px 13px}
+  .nav-btn{padding:9px 10px;font-size:12px}
+  input,select{height:38px;font-size:14px}
+  .btn{height:38px;font-size:13px}
+  .pk{height:46px;font-size:17px}
+  table{font-size:12px}
+  th,td{padding:6px 7px}
+  .mi{padding:10px}
+  .mi-n{font-size:13px}
+  .lcard{padding:20px 16px}
+  .pp{gap:6px}
+}
+@media(max-width:360px){
+  .nav-btn{padding:8px 7px;font-size:11px}
+  .mg{grid-template-columns:1fr 1fr}
+  .ml{grid-template-columns:1fr}
+}
+/* Prevent double-tap zoom on buttons */
+button,input,select{touch-action:manipulation}
+/* Safe area for notch phones */
+.hdr{padding-top:max(11px,env(safe-area-inset-top))}
+#toast{bottom:max(14px,env(safe-area-inset-bottom))}
 </style>
 
 <div style="position:relative" id="app">
@@ -584,3 +625,5 @@ function chgPin(who){
   document.getElementById(who==='owner'?'cOP':'cKP').value='';
 }
 </script>
+</body>
+</html>
