@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#7A9E6A">
+<title>Nakku Matcha</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body,div,span,input,select,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.app{min-height:100vh;background:var(--color-background-tertiary)}
+body{background:var(--color-background-tertiary);min-height:100vh}
+.hdr{background:#7A9E6A;padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
+.hdr-l{display:flex;align-items:center;gap:9px}
+.nk-logo-sm{width:36px;height:36px;border-radius:50%;overflow:hidden;background:#fff;flex-shrink:0}
+.nk-logo-sm img{width:100%;height:100%;object-fit:cover}
+.brand-name{color:#fff;font-size:14px;font-weight:500}
+.brand-sub{color:#D4EDBE;font-size:11px;display:block;font-weight:400}
+.logout-btn{background:rgba(255,255,255,0.18);border-radius:20px;padding:4px 11px;font-size:12px;color:#fff;cursor:pointer;border:none}
+.nav{background:#5C7D4A;display:flex;overflow-x:auto}
+.nav-btn{background:none;border:none;padding:9px 13px;color:#B8D49A;font-size:13px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.nav-btn.active{color:#fff;border-bottom-color:#C8E8A0}
+.content{padding:13px}
+.page{display:none}.page.active{display:block}
+.card{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);padding:14px 16px;margin-bottom:11px}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:11px}
+.mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.mc-l{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.mc-v{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.mc-v.g{color:#3B6D11}.mc-v.r{color:#A32D2D}.mc-v.b{color:#185FA5}
+.mc-s{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.sec{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:9px;display:flex;align-items:center;gap:5px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+lbl{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:3px}
+input,select{width:100%;height:34px;font-size:13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);padding:0 9px}
+.btn{height:34px;padding:0 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;cursor:pointer}
+.btn.p{background:#5C7D4A;border-color:#5C7D4A;color:#fff}
+.btn.d{background:var(--color-background-danger);border-color:var(--color-border-danger);color:var(--color-text-danger)}
+.btn.s{height:26px;padding:0 9px;font-size:12px}
+.br{display:flex;gap:7px;margin-top:9px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:7px 9px;border-bottom:0.5px solid var(--color-border-tertiary);font-weight:500;font-size:12px;color:var(--color-text-secondary)}
+td{padding:7px 9px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.bdg{display:inline-block;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:500}
+.bdg.cash{background:#EAF3DE;color:#3B6D11}
+.bdg.qris{background:#E6F1FB;color:#185FA5}
+.bdg.low{background:#FCEBEB;color:#A32D2D}
+.bdg.ok{background:#EAF3DE;color:#3B6D11}
+.ml{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.mi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.mi-n{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.mi-p{font-size:12px;color:#3B6D11}
+.qc{display:flex;align-items:center;gap:5px}
+.qb{width:24px;height:24px;border-radius:50%;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qn{font-size:13px;font-weight:500;min-width:14px;text-align:center;color:var(--color-text-primary)}
+.sr{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.sr.t{border-bottom:none;font-weight:500;color:var(--color-text-primary);font-size:14px}
+.sbw{background:var(--color-background-secondary);border-radius:4px;height:5px;overflow:hidden;margin-top:3px}
+.sbb{height:100%;border-radius:4px}
+.alrt{padding:9px 11px;border-radius:var(--border-radius-md);font-size:13px;margin-bottom:9px;border:0.5px solid}
+.alrt.w{background:#FAEEDA;color:#854F0B;border-color:#FAC775}
+.alrt.s{background:#EAF3DE;color:#3B6D11;border-color:#C0DD97}
+.ps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px}
+.pc{border-radius:var(--border-radius-md);padding:10px 13px;border:0.5px solid var(--color-border-tertiary)}
+.pc.c{background:#EAF3DE}.pc.q{background:#E6F1FB}
+.pc-l{font-size:11px;font-weight:500;margin-bottom:3px}
+.pc.c .pc-l{color:#3B6D11}.pc.q .pc-l{color:#185FA5}
+.pc-v{font-size:16px;font-weight:500}
+.pc.c .pc-v{color:#27500A}.pc.q .pc-v{color:#0C447C}
+.pc-s{font-size:11px;margin-top:2px}
+.pc.c .pc-s{color:#3B6D11}.pc.q .pc-s{color:#185FA5}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:520px;padding:16px}
+.lcard{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);padding:24px 20px;width:100%;max-width:310px;text-align:center}
+.nk-big{width:80px;height:80px;border-radius:50%;margin:0 auto 12px;overflow:hidden;background:#7A9E6A}
+.nk-big img{width:100%;height:100%;object-fit:cover}
+.lt{font-size:17px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.ls{font-size:13px;color:var(--color-text-secondary);margin-bottom:14px}
+.rs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.rb{padding:11px 6px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;text-align:center}
+.rb.sel{border-color:#5C7D4A;background:#EAF3DE}
+.rb .ri{font-size:19px;color:#5C7D4A;margin-bottom:3px}
+.rb .rn{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.rb .rd{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.pdots{display:flex;gap:9px;justify-content:center;margin:10px 0}
+.pd{width:11px;height:11px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);transition:background 0.15s}
+.pd.f{background:#5C7D4A;border-color:#5C7D4A}
+.pp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}
+.pk{height:42px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);font-size:16px;cursor:pointer;color:var(--color-text-primary);font-weight:500}
+.emsg{color:#A32D2D;font-size:12px;margin-top:6px;min-height:17px}
+.empty{text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px}
+#toast{position:absolute;bottom:14px;left:50%;transform:translateX(-50%) translateY(0);background:#5C7D4A;color:#fff;padding:7px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap;z-index:99}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+/* Button press */
+.btn,.pk,.qb,.nav-btn,.logout-btn,.rb{transition:transform 0.1s,box-shadow 0.1s,background 0.15s,opacity 0.15s}
+.btn:active,.pk:active,.qb:active,.logout-btn:active{transform:scale(0.93);opacity:0.85}
+.rb:active{transform:scale(0.96)}
+.nav-btn:active{transform:scale(0.95)}
+
+/* Nav active underline slide */
+.nav-btn{position:relative;overflow:hidden}
+.nav-btn::after{content:'';position:absolute;bottom:0;left:50%;width:0;height:2px;background:#C8E8A0;transition:width 0.2s,left 0.2s}
+.nav-btn.active::after{width:100%;left:0}
+.nav-btn{border-bottom:none!important}
+
+/* Page fade-slide in */
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:pageIn 0.2s ease}
+
+/* Card subtle entrance */
+@keyframes cardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:cardIn 0.22s ease both}
+.card:nth-child(2){animation-delay:0.04s}
+.card:nth-child(3){animation-delay:0.08s}
+.card:nth-child(4){animation-delay:0.12s}
+
+/* PIN dot pop */
+@keyframes dotPop{0%{transform:scale(1)}40%{transform:scale(1.4)}70%{transform:scale(0.9)}100%{transform:scale(1)}}
+.pd.pop{animation:dotPop 0.22s ease}
+
+/* Menu item bounce on qty change */
+@keyframes numBounce{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.qn.bump{animation:numBounce 0.18s ease}
+
+/* Primary btn ripple feel */
+.btn.p{position:relative;overflow:hidden}
+.btn.p::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.15);opacity:0;border-radius:inherit;transition:opacity 0.2s}
+.btn.p:active::after{opacity:1}
+
+/* Login card entrance */
+@keyframes lCardIn{from{opacity:0;transform:scale(0.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.lcard{animation:lCardIn 0.3s cubic-bezier(0.34,1.2,0.64,1)}
+
+/* Role button select pop */
+@keyframes rbPop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+.rb.sel{animation:rbPop 0.18s ease}
+
+/* Metric card number change */
+@keyframes numFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.mc-v{animation:numFade 0.25s ease}
+
+/* Toast slide up */
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(-4px)}}
+
+/* Responsive */
+@media(max-width:480px){
+  .mg{grid-template-columns:1fr 1fr}
+  .fr{grid-template-columns:1fr 1fr}
+  .ml{grid-template-columns:1fr}
+  .ps{grid-template-columns:1fr 1fr}
+  .content{padding:10px}
+  .card{padding:12px 13px}
+  .hdr{padding:10px 13px}
+  .nav-btn{padding:9px 10px;font-size:12px}
+  input,select{height:38px;font-size:14px}
+  .btn{height:38px;font-size:13px}
+  .pk{height:46px;font-size:17px}
+  table{font-size:12px}
+  th,td{padding:6px 7px}
+  .mi{padding:10px}
+  .mi-n{font-size:13px}
+  .lcard{padding:20px 16px}
+  .pp{gap:6px}
+}
+@media(max-width:360px){
+  .nav-btn{padding:8px 7px;font-size:11px}
+  .mg{grid-template-columns:1fr 1fr}
+  .ml{grid-template-columns:1fr}
+}
+/* Prevent double-tap zoom on buttons */
+button,input,select{touch-action:manipulation}
+/* Safe area for notch phones */
+.hdr{padding-top:max(11px,env(safe-area-inset-top))}
+#toast{bottom:max(14px,env(safe-area-inset-bottom))}
+</style>
+
+<div style="position:relative" id="app">
+
+<div id="loginScreen">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="nk-logo-sm"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%237A9E6A'/%3E%3Crect x='12' y='14' width='26' height='62' rx='13' fill='white'/%3E%3Crect x='62' y='14' width='26' height='62' rx='13' fill='white'/%3E%3Cpolygon points='38,50 72,14 72,86' fill='white'/%3E%3Cellipse cx='34' cy='44' rx='5' ry='6' fill='%231a1a1a'/%3E%3Cellipse cx='57' cy='44' rx='5' ry='6' fill='%231a1a1a'/%3E%3Cpath d='M37 60 Q46 69 63 60' stroke='%231a1a1a' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='50' cy='84' rx='22' ry='5' fill='%235C7D4A'/%3E%3C/svg%3E" alt="Nakku Matcha logo"></div>
+      <div><div class="brand-name">Nakku Matcha</div><span class="brand-sub">Sistem Pembukuan</span></div>
+    </div>
+  </div>
+  <div class="login-wrap">
+    <div class="lcard">
+      <div class="nk-big"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%237A9E6A'/%3E%3Crect x='12' y='14' width='26' height='62' rx='13' fill='white'/%3E%3Crect x='62' y='14' width='26' height='62' rx='13' fill='white'/%3E%3Cpolygon points='38,50 72,14 72,86' fill='white'/%3E%3Cellipse cx='34' cy='44' rx='5' ry='6' fill='%231a1a1a'/%3E%3Cellipse cx='57' cy='44' rx='5' ry='6' fill='%231a1a1a'/%3E%3Cpath d='M37 60 Q46 69 63 60' stroke='%231a1a1a' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='50' cy='84' rx='22' ry='5' fill='%235C7D4A'/%3E%3C/svg%3E" alt="Nakku Matcha"></div>
+      <div class="lt">Nakku Matcha</div>
+      <div class="ls">Masuk untuk melanjutkan</div>
+      <div class="rs">
+        <div class="rb sel" id="rb-owner" onclick="selR('owner')">
+          <div class="ri"><i class="ti ti-crown" aria-hidden="true"></i></div>
+          <div class="rn">Owner</div><div class="rd">Akses penuh</div>
+        </div>
+        <div class="rb" id="rb-kar" onclick="selR('karyawan')">
+          <div class="ri"><i class="ti ti-user" aria-hidden="true"></i></div>
+          <div class="rn">Karyawan</div><div class="rd">Catat transaksi</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:5px">Masukkan PIN</div>
+      <div class="pdots" id="pdots">
+        <div class="pd" id="d0"></div><div class="pd" id="d1"></div><div class="pd" id="d2"></div><div class="pd" id="d3"></div>
+      </div>
+      <div class="pp">
+        <button class="pk" onclick="pk('1')">1</button><button class="pk" onclick="pk('2')">2</button><button class="pk" onclick="pk('3')">3</button>
+        <button class="pk" onclick="pk('4')">4</button><button class="pk" onclick="pk('5')">5</button><button class="pk" onclick="pk('6')">6</button>
+        <button class="pk" onclick="pk('7')">7</button><button class="pk" onclick="pk('8')">8</button><button class="pk" onclick="pk('9')">9</button>
+        <button class="pk" onclick="pk('C')" style="font-size:12px">Hapus</button>
+        <button class="pk" onclick="pk('0')">0</button>
+        <button class="pk btn p" onclick="pk('OK')" style="font-size:12px">OK</button>
+      </div>
+      <div class="emsg" id="perr"></div>
+    </div>
+  </div>
+</div>
+
+<div id="mainScreen" style="display:none">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="nk-logo-sm"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%237A9E6A'/%3E%3Crect x='12' y='14' width='26' height='62' rx='13' fill='white'/%3E%3Crect x='62' y='14' width='26' height='62' rx='13' fill='white'/%3E%3Cpolygon points='38,50 72,14 72,86' fill='white'/%3E%3Cellipse cx='34' cy='44' rx='5' ry='6' fill='%231a1a1a'/%3E%3Cellipse cx='57' cy='44' rx='5' ry='6' fill='%231a1a1a'/%3E%3Cpath d='M37 60 Q46 69 63 60' stroke='%231a1a1a' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cellipse cx='50' cy='84' rx='22' ry='5' fill='%235C7D4A'/%3E%3C/svg%3E" alt="logo"></div>
+      <div><div class="brand-name">Nakku Matcha</div><span class="brand-sub" id="dateHdr"></span></div>
+    </div>
+    <button class="logout-btn" onclick="logout()" id="uBadge">Keluar</button>
+  </div>
+  <div class="nav" id="mainNav"></div>
+  <div class="content">
+
+    <div class="page active" id="page-dashboard">
+      <div class="ps" id="paySplit"></div>
+      <div class="mg" id="dashM"></div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-shopping-cart" aria-hidden="true"></i> Penjualan hari ini</div>
+        <div class="tw"><table><thead><tr><th>Waktu</th><th>Menu</th><th>Qty</th><th>Total</th><th>Bayar</th></tr></thead><tbody id="dSales"></tbody></table></div>
+      </div>
+      <div class="card" id="dExpCard" style="display:none">
+        <div class="sec"><i class="ti ti-receipt" aria-hidden="true"></i> Pengeluaran hari ini</div>
+        <div class="tw"><table><thead><tr><th>Waktu</th><th>Keterangan</th><th>Jumlah</th></tr></thead><tbody id="dExp"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Stok menipis</div>
+        <div id="dLowStock"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-penjualan">
+      <div class="card">
+        <div class="sec"><i class="ti ti-calendar" aria-hidden="true"></i> Tanggal transaksi</div>
+        <input type="date" id="saleDatePick" style="margin-bottom:4px">
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-coffee" aria-hidden="true"></i> Pilih menu</div>
+        <div class="ml" id="menuList"></div>
+        <div style="margin-top:12px;border-top:0.5px solid var(--color-border-tertiary);padding-top:11px">
+          <div class="sr"><span>Subtotal</span><span id="subtotal">Rp 0</span></div>
+          <div class="sr"><span>Metode bayar</span>
+            <select id="payM" style="width:100px;height:28px;font-size:13px"><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select>
+          </div>
+          <div class="sr t"><span>Total</span><span id="totalAmt" style="color:#3B6D11">Rp 0</span></div>
+          <div class="br"><button class="btn p" onclick="submitSale()"><i class="ti ti-check" aria-hidden="true"></i> Simpan</button><button class="btn" onclick="resetCart()">Reset</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-pengeluaran">
+      <div class="card">
+        <div class="sec"><i class="ti ti-cash" aria-hidden="true"></i> Catat pengeluaran</div>
+        <div class="fr">
+          <div><lbl>Keterangan</lbl><input id="expDesc" placeholder="misal: es kristal"></div>
+          <div><lbl>Jumlah (Rp)</lbl><input id="expAmt" type="number" placeholder="15000"></div>
+        </div>
+        <div style="margin-bottom:9px"><lbl>Tanggal</lbl><input type="date" id="expDate"></div>
+        <button class="btn p" onclick="submitExp()"><i class="ti ti-plus" aria-hidden="true"></i> Simpan</button>
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-history" aria-hidden="true"></i> Riwayat hari ini</div>
+        <div class="tw"><table><thead><tr><th>Waktu</th><th>Keterangan</th><th>Jumlah</th></tr></thead><tbody id="expTb"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-stok">
+      <div class="card">
+        <div class="sec"><i class="ti ti-package" aria-hidden="true"></i> Lapor pengambilan bahan</div>
+        <div id="stokAlrt"></div>
+        <div class="fr">
+          <div><lbl>Bahan</lbl><select id="stokItem"></select></div>
+          <div><lbl>Jumlah</lbl><input id="stokQty" type="number" min="1" value="1"></div>
+        </div>
+        <button class="btn p" onclick="submitAmbil()"><i class="ti ti-minus" aria-hidden="true"></i> Kurangi stok</button>
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-box" aria-hidden="true"></i> Status stok</div>
+        <div id="stokList"></div>
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-history" aria-hidden="true"></i> Log pengambilan</div>
+        <div class="tw"><table><thead><tr><th>Tgl & Waktu</th><th>Bahan</th><th>Jumlah</th><th>Oleh</th></tr></thead><tbody id="stokLog"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-laporan">
+      <div class="card">
+        <div class="sec"><i class="ti ti-calendar" aria-hidden="true"></i> Rentang tanggal</div>
+        <div class="fr">
+          <div><lbl>Dari</lbl><input type="date" id="rptFrom"></div>
+          <div><lbl>Sampai</lbl><input type="date" id="rptTo"></div>
+        </div>
+        <button class="btn p" onclick="showReport()"><i class="ti ti-chart-bar" aria-hidden="true"></i> Tampilkan</button>
+      </div>
+      <div id="rptOut"></div>
+    </div>
+
+    <div class="page" id="page-menu">
+      <div class="card" id="addMenuCard">
+        <div class="sec"><i class="ti ti-plus" aria-hidden="true"></i> Tambah menu baru</div>
+        <div class="fr">
+          <div><lbl>Nama menu</lbl><input id="newMName" placeholder="nama menu"></div>
+          <div><lbl>Harga (Rp)</lbl><input id="newMPrice" type="number" placeholder="15000"></div>
+        </div>
+        <button class="btn p" onclick="addMenu()">Simpan</button>
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-list" aria-hidden="true"></i> Daftar menu</div>
+        <div class="tw"><table><thead><tr><th>Menu</th><th>Harga</th><th id="menuActTh"></th></tr></thead><tbody id="menuTb"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-pengaturan">
+      <div class="card">
+        <div class="sec"><i class="ti ti-lock" aria-hidden="true"></i> Ganti PIN owner</div>
+        <div class="fr">
+          <div><lbl>PIN baru (4 angka)</lbl><input id="nOP" type="password" maxlength="4" placeholder="****"></div>
+          <div><lbl>Konfirmasi</lbl><input id="cOP" type="password" maxlength="4" placeholder="****"></div>
+        </div>
+        <button class="btn p" onclick="chgPin('owner')">Simpan</button>
+        <div id="oPinMsg" style="font-size:12px;margin-top:7px"></div>
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-lock" aria-hidden="true"></i> Ganti PIN karyawan</div>
+        <div class="fr">
+          <div><lbl>PIN baru (4 angka)</lbl><input id="nKP" type="password" maxlength="4" placeholder="****"></div>
+          <div><lbl>Konfirmasi</lbl><input id="cKP" type="password" maxlength="4" placeholder="****"></div>
+        </div>
+        <button class="btn p" onclick="chgPin('kar')">Simpan</button>
+        <div id="kPinMsg" style="font-size:12px;margin-top:7px"></div>
+      </div>
+      <div class="card">
+        <div class="sec"><i class="ti ti-package" aria-hidden="true"></i> Isi ulang stok</div>
+        <div class="fr">
+          <div><lbl>Bahan</lbl><select id="refillItem"></select></div>
+          <div><lbl>Tambah jumlah</lbl><input id="refillQty" type="number" placeholder="100"></div>
+        </div>
+        <button class="btn p" onclick="submitRefill()">Isi ulang</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="syncStatus" style="display:none;position:fixed;top:0;left:0;right:0;background:#5C7D4A;color:#fff;font-size:12px;text-align:center;padding:4px;z-index:999;"></div>
+<div id="toast"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCZUbZTeQ1sr2OPbUBOvG5juyooyYt2Z2k",
+  authDomain: "nakku-matcha.firebaseapp.com",
+  projectId: "nakku-matcha",
+  storageBucket: "nakku-matcha.firebasestorage.app",
+  messagingSenderId: "755849414014",
+  appId: "1:755849414014:web:eb9f25c8c1cf84c16b5f2f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const BAHAN=['Bubuk matcha','Plastik isi 2','Plastik isi 1','Krimer','Susu UHT','Madu','Cup','Selai strawberry','SKM','Kertas penutup','Sedotan','Maciato','Tisu','Cokelat','Taro','Bubuk Red Velvet'];
+const DEF_MENUS=[{id:1,name:'Usucha',price:10000},{id:2,name:'Matcha Latte',price:13000},{id:3,name:'Honey Matcha',price:16000},{id:4,name:'Cloud Matcha',price:16000},{id:5,name:'Chocolate Matcha',price:16000},{id:6,name:'Strawberry Matcha',price:18000},{id:7,name:'Matcha Taro Latte',price:18000}];
+
+let S={
+  role:null,
+  sales:[],
+  expenses:[],
+  stock:BAHAN.map((n,i)=>({id:i+1,name:n,qty:100,min:10})),
+  slog:[],
+  menus:DEF_MENUS,
+  opin:'1234',
+  kpin:'5678',
+  cart:{}
+};
+
+// Simpan ke Firestore
+async function sv(){
+  try{
+    await setDoc(doc(db,'nakku','data'),{
+      sales:S.sales,
+      expenses:S.expenses,
+      stock:S.stock,
+      slog:S.slog,
+      menus:S.menus,
+      opin:S.opin,
+      kpin:S.kpin,
+      updatedAt:Date.now()
+    });
+  }catch(e){console.error('Gagal simpan:',e);toast('⚠️ Gagal sinkron, cek koneksi')}
+}
+
+// Load data dari Firestore & realtime listener
+async function initData(){
+  showSyncStatus('Menghubungkan...');
+  try{
+    const snap=await getDoc(doc(db,'nakku','data'));
+    if(snap.exists()){
+      const d=snap.data();
+      S.sales=d.sales||[];
+      S.expenses=d.expenses||[];
+      S.stock=d.stock||BAHAN.map((n,i)=>({id:i+1,name:n,qty:100,min:10}));
+      S.slog=d.slog||[];
+      S.menus=d.menus||DEF_MENUS;
+      S.opin=d.opin||'1234';
+      S.kpin=d.kpin||'5678';
+    }
+    showSyncStatus('');
+    // Realtime listener — update otomatis kalau ada perubahan dari HP lain
+    onSnapshot(doc(db,'nakku','data'),(snap)=>{
+      if(!snap.exists())return;
+      const d=snap.data();
+      S.sales=d.sales||[];
+      S.expenses=d.expenses||[];
+      S.stock=d.stock||S.stock;
+      S.slog=d.slog||[];
+      S.menus=d.menus||S.menus;
+      S.opin=d.opin||S.opin;
+      S.kpin=d.kpin||S.kpin;
+      // Refresh halaman yang sedang aktif
+      if(S.role){
+        const active=document.querySelector('.page.active');
+        if(active)showPage(active.id.replace('page-',''));
+      }
+    });
+  }catch(e){
+    console.error('Gagal load:',e);
+    showSyncStatus('⚠️ Offline');
+  }
+}
+
+function showSyncStatus(msg){
+  let el=document.getElementById('syncStatus');
+  if(!el)return;
+  el.textContent=msg;
+  el.style.display=msg?'block':'none';
+}
+
+function fmt(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
+function today(){return new Date().toISOString().slice(0,10)}
+function tNow(){return new Date().toTimeString().slice(0,5)}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),2200)}
+
+// Expose semua fungsi ke global scope (karena pakai ES module)
+window.fmt=fmt;window.today=today;window.tNow=tNow;window.toast=toast;
+
+let pBuf='',sRole='owner';
+function selR(r){sRole=r;['owner','kar'].forEach(id=>{const el=document.getElementById('rb-'+id);const isNow=(id==='owner'?'owner':'karyawan')===r;el.classList.toggle('sel',isNow);if(isNow){el.style.animation='none';void el.offsetWidth;el.style.animation=''}});pBuf='';updDots();document.getElementById('perr').textContent=''}
+function updDots(){for(let i=0;i<4;i++){const d=document.getElementById('d'+i);const was=d.classList.contains('f');const now=i<pBuf.length;d.classList.toggle('f',now);if(now&&!was){d.classList.remove('pop');void d.offsetWidth;d.classList.add('pop')}}}
+function pk(k){
+  const e=document.getElementById('perr');
+  if(k==='C'){pBuf=pBuf.slice(0,-1);updDots();e.textContent='';return}
+  const chk=()=>{const c=sRole==='owner'?S.opin:S.kpin;if(pBuf===c)doLogin(sRole);else{e.textContent='PIN salah, coba lagi';pBuf='';updDots()}};
+  if(k==='OK'){chk();return}
+  if(pBuf.length<4){pBuf+=k;updDots()}
+  if(pBuf.length===4)setTimeout(chk,120);
+}
+function doLogin(role){
+  S.role=role;
+  const ls=document.getElementById('loginScreen');
+  const ms=document.getElementById('mainScreen');
+  ls.style.transition='opacity 0.25s';ls.style.opacity='0';
+  setTimeout(()=>{ls.style.display='none';ms.style.display='block';ms.style.opacity='0';ms.style.transition='opacity 0.2s';setTimeout(()=>ms.style.opacity='1',10)},230);
+  document.getElementById('uBadge').innerHTML='<i class="ti ti-'+(role==='owner'?'crown':'user')+'" aria-hidden="true"></i> '+(role==='owner'?'Owner':'Karyawan')+' · Keluar';
+  document.getElementById('dateHdr').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  buildNav();showPage('dashboard');
+}
+function logout(){S.role=null;pBuf='';updDots();document.getElementById('perr').textContent='';document.getElementById('loginScreen').style.display='block';document.getElementById('mainScreen').style.display='none'}
+
+window.selR=selR;window.pk=pk;window.logout=logout;
+
+function buildNav(){
+  const owP=[{id:'dashboard',ic:'ti-layout-dashboard',lb:'Dashboard'},{id:'laporan',ic:'ti-chart-bar',lb:'Laporan'},{id:'menu',ic:'ti-list',lb:'Menu'},{id:'pengaturan',ic:'ti-settings',lb:'Pengaturan'}];
+  const karP=[{id:'dashboard',ic:'ti-layout-dashboard',lb:'Dashboard'},{id:'penjualan',ic:'ti-shopping-cart',lb:'Penjualan'},{id:'pengeluaran',ic:'ti-cash',lb:'Pengeluaran'},{id:'stok',ic:'ti-package',lb:'Stok'}];
+  const pages=S.role==='owner'?owP:karP;
+  document.getElementById('mainNav').innerHTML=pages.map(p=>`<button class="nav-btn" id="nav-${p.id}" onclick="showPage('${p.id}')"><i class="ti ${p.ic}" aria-hidden="true"></i> ${p.lb}</button>`).join('');
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');
+  const nb=document.getElementById('nav-'+id);if(nb)nb.classList.add('active');
+  if(id==='dashboard')rDash();
+  if(id==='penjualan'){document.getElementById('saleDatePick').value=today();rMenuPicker();}
+  if(id==='stok')rStok();
+  if(id==='pengeluaran'){document.getElementById('expDate').value=today();rExpHist();}
+  if(id==='menu')rMenuTb();
+  if(id==='laporan'){const t=today();const f=document.getElementById('rptFrom');const to=document.getElementById('rptTo');if(!f.value)f.value=t;if(!to.value)to.value=t;}
+  if(id==='pengaturan'){const ri=document.getElementById('refillItem');if(ri)ri.innerHTML=S.stock.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');}
+}
+window.showPage=showPage;
+
+function rDash(){
+  const t=today();
+  const ts=S.sales.filter(s=>s.date===t);
+  const te=S.expenses.filter(e=>e.date===t);
+  const cIn=ts.filter(s=>s.pay==='Cash').reduce((a,s)=>a+s.total,0);
+  const qIn=ts.filter(s=>s.pay==='QRIS').reduce((a,s)=>a+s.total,0);
+  const tIn=cIn+qIn,tOut=te.reduce((a,e)=>a+e.amount,0);
+  const tQty=ts.reduce((a,s)=>a+s.qty,0);
+  const cQty=ts.filter(s=>s.pay==='Cash').reduce((a,s)=>a+s.qty,0);
+  const qQty=ts.filter(s=>s.pay==='QRIS').reduce((a,s)=>a+s.qty,0);
+  document.getElementById('paySplit').innerHTML=`
+    <div class="pc c"><div class="pc-l"><i class="ti ti-cash" aria-hidden="true"></i> Cash</div><div class="pc-v">${fmt(cIn)}</div><div class="pc-s">${cQty} cup</div></div>
+    <div class="pc q"><div class="pc-l"><i class="ti ti-qrcode" aria-hidden="true"></i> QRIS</div><div class="pc-v">${fmt(qIn)}</div><div class="pc-s">${qQty} cup</div></div>`;
+  document.getElementById('dashM').innerHTML=`
+    <div class="mc"><div class="mc-l">Total pemasukan</div><div class="mc-v g">${fmt(tIn)}</div></div>
+    <div class="mc"><div class="mc-l">Pengeluaran</div><div class="mc-v r">${fmt(tOut)}</div></div>
+    <div class="mc"><div class="mc-l">Profit bersih</div><div class="mc-v ${tIn-tOut>=0?'g':'r'}">${fmt(tIn-tOut)}</div></div>
+    <div class="mc"><div class="mc-l">Cup terjual</div><div class="mc-v">${tQty}</div><div class="mc-s">Cash ${cQty} + QRIS ${qQty}</div></div>`;
+  const tb=document.getElementById('dSales');
+  tb.innerHTML=ts.length?ts.slice().reverse().map(s=>`<tr><td>${s.time}</td><td>${s.menu}</td><td>${s.qty}</td><td>${fmt(s.total)}</td><td><span class="bdg ${s.pay.toLowerCase()}">${s.pay}</span></td></tr>`).join(''):'<tr><td colspan="5" class="empty">Belum ada penjualan hari ini</td></tr>';
+  const ec=document.getElementById('dExpCard');
+  if(te.length){ec.style.display='block';document.getElementById('dExp').innerHTML=te.slice().reverse().map(e=>`<tr><td>${e.time}</td><td>${e.desc}</td><td>${fmt(e.amount)}</td></tr>`).join('')}
+  else ec.style.display='none';
+  const low=S.stock.filter(s=>s.qty<=s.min);
+  document.getElementById('dLowStock').innerHTML=low.length?low.map(s=>`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> <b>${s.name}</b> — tersisa ${s.qty} (min: ${s.min})</div>`).join(''):'<div style="font-size:13px;color:var(--color-text-secondary);padding:5px 0">Semua stok aman ✓</div>';
+}
+
+function rMenuPicker(){
+  S.cart={};
+  document.getElementById('menuList').innerHTML=S.menus.map(m=>`
+    <div class="mi"><div><div class="mi-n">${m.name}</div><div class="mi-p">${fmt(m.price)}</div></div>
+    <div class="qc"><button class="qb" onclick="cc(${m.id},-1)">-</button><span class="qn" id="q${m.id}">0</span><button class="qb" onclick="cc(${m.id},1)">+</button></div></div>`).join('');
+  updT();
+}
+function cc(id,d){S.cart[id]=(S.cart[id]||0)+d;if(S.cart[id]<0)S.cart[id]=0;const el=document.getElementById('q'+id);el.textContent=S.cart[id];el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');updT()}
+function updT(){let t=0;S.menus.forEach(m=>t+=(S.cart[m.id]||0)*m.price);document.getElementById('subtotal').textContent=fmt(t);document.getElementById('totalAmt').textContent=fmt(t)}
+function resetCart(){rMenuPicker()}
+function submitSale(){
+  const entries=S.menus.filter(m=>S.cart[m.id]>0);
+  if(!entries.length){toast('Pilih menu dulu!');return}
+  const pay=document.getElementById('payM').value;
+  const date=document.getElementById('saleDatePick').value||today();
+  entries.forEach(m=>S.sales.push({date,time:tNow(),menu:m.name,qty:S.cart[m.id],total:S.cart[m.id]*m.price,pay}));
+  sv();toast('Penjualan dicatat! ☕');resetCart();
+}
+window.cc=cc;window.resetCart=resetCart;window.submitSale=submitSale;
+
+function rExpHist(){
+  const t=document.getElementById('expDate').value||today();
+  const te=S.expenses.filter(e=>e.date===t);
+  document.getElementById('expTb').innerHTML=te.length?te.slice().reverse().map(e=>`<tr><td>${e.time}</td><td>${e.desc}</td><td>${fmt(e.amount)}</td></tr>`).join(''):'<tr><td colspan="3" class="empty">Belum ada pengeluaran</td></tr>';
+}
+function submitExp(){
+  const desc=document.getElementById('expDesc').value.trim();
+  const amt=parseInt(document.getElementById('expAmt').value);
+  const date=document.getElementById('expDate').value||today();
+  if(!desc||!amt||amt<=0){toast('Isi keterangan dan jumlah!');return}
+  S.expenses.push({date,time:tNow(),desc,amount:amt});
+  sv();toast('Pengeluaran dicatat!');
+  document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';
+  rExpHist();
+}
+window.rExpHist=rExpHist;window.submitExp=submitExp;
+
+function rStok(){
+  document.getElementById('stokItem').innerHTML=S.stock.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  rStokList();rStokLog();
+}
+function rStokList(){
+  document.getElementById('stokList').innerHTML=S.stock.map(s=>{
+    const pct=Math.min(100,Math.round(s.qty/Math.max(s.min*3,1)*100));
+    const low=s.qty<=s.min;
+    return `<div style="padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${s.name}</span>
+        <span class="bdg ${low?'low':'ok'}">${s.qty}</span>
+      </div>
+      <div class="sbw"><div class="sbb" style="width:${pct}%;background:${low?'#E24B4A':'#639922'}"></div></div>
+    </div>`}).join('');
+}
+function rStokLog(){
+  const tb=document.getElementById('stokLog');
+  tb.innerHTML=S.slog.length?S.slog.slice().reverse().slice(0,20).map(l=>`<tr><td>${l.date} ${l.time}</td><td>${l.name}</td><td>-${l.qty}</td><td>${l.by}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Belum ada log</td></tr>';
+}
+function submitAmbil(){
+  const id=parseInt(document.getElementById('stokItem').value);
+  const qty=parseInt(document.getElementById('stokQty').value);
+  const s=S.stock.find(x=>x.id===id);
+  if(!s||qty<=0){toast('Input tidak valid');return}
+  if(qty>s.qty){toast('Stok tidak cukup! Tersisa '+s.qty);return}
+  s.qty-=qty;S.slog.push({date:today(),time:tNow(),name:s.name,qty,by:S.role});
+  sv();toast(s.name+' -'+qty+' dicatat');rStokList();rStokLog();
+  document.getElementById('stokAlrt').innerHTML=s.qty<=s.min?`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Stok ${s.name} menipis! Tersisa ${s.qty}</div>`:'';
+}
+function submitRefill(){
+  const id=parseInt(document.getElementById('refillItem').value);
+  const qty=parseInt(document.getElementById('refillQty').value);
+  const s=S.stock.find(x=>x.id===id);
+  if(!s||qty<=0){toast('Input tidak valid');return}
+  s.qty+=qty;sv();toast(s.name+' +'+qty+' ditambahkan');
+  document.getElementById('refillQty').value='';
+}
+window.submitAmbil=submitAmbil;window.submitRefill=submitRefill;
+
+function rMenuTb(){
+  const isOwner=S.role==='owner';
+  document.getElementById('addMenuCard').style.display=isOwner?'block':'none';
+  document.getElementById('menuActTh').textContent=isOwner?'Aksi':'';
+  document.getElementById('menuTb').innerHTML=S.menus.map(m=>`
+    <tr>
+      <td>${m.name}</td>
+      <td id="mp${m.id}">${fmt(m.price)}</td>
+      <td>${isOwner?`<div style="display:flex;gap:5px">
+        <button class="btn s" onclick="editMenu(${m.id})"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        <button class="btn d s" onclick="delMenu(${m.id})"><i class="ti ti-trash" aria-hidden="true"></i></button>
+      </div>`:''}</td>
+    </tr>`).join('');
+}
+function editMenu(id){
+  const m=S.menus.find(x=>x.id===id);if(!m)return;
+  const np=prompt(`Harga baru untuk "${m.name}" (sekarang: Rp ${m.price.toLocaleString('id-ID')}):`)
+  if(np===null)return;
+  const p=parseInt(np);
+  if(!p||p<=0){toast('Harga tidak valid');return}
+  m.price=p;sv();toast('Harga diperbarui!');rMenuTb();
+}
+function addMenu(){
+  const name=document.getElementById('newMName').value.trim();
+  const price=parseInt(document.getElementById('newMPrice').value);
+  if(!name||!price){toast('Lengkapi nama dan harga!');return}
+  S.menus.push({id:Date.now(),name,price});sv();toast('Menu ditambahkan!');
+  document.getElementById('newMName').value='';document.getElementById('newMPrice').value='';
+  rMenuTb();
+}
+function delMenu(id){S.menus=S.menus.filter(m=>m.id!==id);sv();toast('Menu dihapus');rMenuTb()}
+window.editMenu=editMenu;window.addMenu=addMenu;window.delMenu=delMenu;
+
+function showReport(){
+  const from=document.getElementById('rptFrom').value;
+  const to=document.getElementById('rptTo').value;
+  if(!from||!to){toast('Pilih rentang tanggal!');return}
+  const rs=S.sales.filter(s=>s.date>=from&&s.date<=to);
+  const re=S.expenses.filter(e=>e.date>=from&&e.date<=to);
+  const cIn=rs.filter(s=>s.pay==='Cash').reduce((a,s)=>a+s.total,0);
+  const qIn=rs.filter(s=>s.pay==='QRIS').reduce((a,s)=>a+s.total,0);
+  const tOut=re.reduce((a,e)=>a+e.amount,0);
+  const tQty=rs.reduce((a,s)=>a+s.qty,0);
+  const mc={};rs.forEach(s=>{mc[s.menu]=(mc[s.menu]||0)+s.qty});
+  const top=Object.entries(mc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const byDate={};rs.forEach(s=>{if(!byDate[s.date])byDate[s.date]={cash:0,qris:0,qty:0};byDate[s.date][s.pay==='Cash'?'cash':'qris']+=s.total;byDate[s.date].qty+=s.qty});
+  const dateRows=Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,v])=>`<tr><td>${d}</td><td>${fmt(v.cash)}</td><td>${fmt(v.qris)}</td><td>${fmt(v.cash+v.qris)}</td><td>${v.qty}</td></tr>`).join('');
+  document.getElementById('rptOut').innerHTML=`
+    <div class="card">
+      <div class="sec"><i class="ti ti-chart-bar" aria-hidden="true"></i> Ringkasan ${from} s/d ${to}</div>
+      <div class="ps">
+        <div class="pc c"><div class="pc-l">Cash masuk</div><div class="pc-v">${fmt(cIn)}</div></div>
+        <div class="pc q"><div class="pc-l">QRIS masuk</div><div class="pc-v">${fmt(qIn)}</div></div>
+      </div>
+      <div class="mg">
+        <div class="mc"><div class="mc-l">Total pemasukan</div><div class="mc-v g">${fmt(cIn+qIn)}</div></div>
+        <div class="mc"><div class="mc-l">Pengeluaran</div><div class="mc-v r">${fmt(tOut)}</div></div>
+        <div class="mc"><div class="mc-l">Profit bersih</div><div class="mc-v ${cIn+qIn-tOut>=0?'g':'r'}">${fmt(cIn+qIn-tOut)}</div></div>
+        <div class="mc"><div class="mc-l">Total terjual</div><div class="mc-v">${tQty} cup</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec"><i class="ti ti-calendar" aria-hidden="true"></i> Per tanggal</div>
+      <div class="tw"><table><thead><tr><th>Tanggal</th><th>Cash</th><th>QRIS</th><th>Total</th><th>Cup</th></tr></thead><tbody>${dateRows||'<tr><td colspan="5" class="empty">Belum ada data</td></tr>'}</tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="sec"><i class="ti ti-award" aria-hidden="true"></i> Menu terlaris</div>
+      ${top.length?top.map(([n,q])=>`<div class="sr"><span>${n}</span><span>${q} cup</span></div>`).join(''):'<div class="empty">Belum ada data</div>'}
+    </div>`;
+}
+window.showReport=showReport;
+
+function chgPin(who){
+  const np=document.getElementById(who==='owner'?'nOP':'nKP').value;
+  const cp=document.getElementById(who==='owner'?'cOP':'cKP').value;
+  const msg=document.getElementById(who==='owner'?'oPinMsg':'kPinMsg');
+  if(np.length!==4||!/^\d+$/.test(np)){msg.style.color='#A32D2D';msg.textContent='PIN harus 4 angka';return}
+  if(np!==cp){msg.style.color='#A32D2D';msg.textContent='PIN tidak cocok';return}
+  if(who==='owner')S.opin=np;else S.kpin=np;
+  sv();msg.style.color='#3B6D11';msg.textContent='PIN berhasil diubah!';
+  document.getElementById(who==='owner'?'nOP':'nKP').value='';
+  document.getElementById(who==='owner'?'cOP':'cKP').value='';
+}
+window.chgPin=chgPin;
+
+// Mulai app
+initData();
+</script>
+</body>
+</html>
