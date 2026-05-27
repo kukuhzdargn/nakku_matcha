@@ -363,13 +363,15 @@ button,input,select{touch-action:manipulation}
           <div class="modal-value" id="modalDisplay">Rp 0</div>
           <div class="modal-sub" id="modalSubText">Belum ada data modal</div>
         </div>
-        <div class="fr">
-          <div><lbl>Set/tambah modal (Rp)</lbl><input id="modalInput" type="number" placeholder="500000"></div>
-          <div><lbl>Keterangan</lbl><input id="modalNote" placeholder="modal awal / tambah modal"></div>
-        </div>
-        <div class="br">
-          <button class="btn p" onclick="setModal()"><i class="ti ti-plus" aria-hidden="true"></i> Tambah Modal</button>
-          <button class="btn" onclick="resetModal()"><i class="ti ti-refresh" aria-hidden="true"></i> Reset ke 0</button>
+        <div id="modalEditSection">
+            <div class="fr">
+              <div><lbl>Set/tambah modal (Rp)</lbl><input id="modalInput" type="number" placeholder="500000"></div>
+              <div><lbl>Keterangan</lbl><input id="modalNote" placeholder="modal awal / tambah modal"></div>
+            </div>
+            <div class="br">
+              <button class="btn p" onclick="setModal()"><i class="ti ti-plus" aria-hidden="true"></i> Tambah Modal</button>
+              <button class="btn" onclick="resetModal()"><i class="ti ti-refresh" aria-hidden="true"></i> Reset ke 0</button>
+            </div>
         </div>
         <div id="modalMsg" style="font-size:12px;margin-top:7px"></div>
       </div>
@@ -561,6 +563,7 @@ function showPage(id){
   if(id==='pengaturan'){
     const ri=document.getElementById('refillItem');if(ri)ri.innerHTML=S.stock.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
     const mc2=document.getElementById('modalCard');if(mc2)mc2.style.display=S.role==='owner'?'block':'none';
+    const me=document.getElementById('modalEditSection');if(me)me.style.display=S.role==='owner'?'block':'none';
     rModalDisplay();
   }
 }
@@ -576,12 +579,12 @@ function rDash(){
   const tQty=ts.reduce((a,s)=>a+s.qty,0);
   const cQty=ts.filter(s=>s.pay==='Cash').reduce((a,s)=>a+s.qty,0);
   const qQty=ts.filter(s=>s.pay==='QRIS').reduce((a,s)=>a+s.qty,0);
-  // Modal chip (owner only)
+  
+  // Modal chip (Bisa terlihat oleh Owner dan Karyawan)
   const mc=document.getElementById('modalChip');
-  if(S.role==='owner'){
-    mc.style.display='block';
-    mc.innerHTML=`<div class="modal-chip"><div><div class="modal-chip-l"><i class="ti ti-wallet" aria-hidden="true"></i> Saldo modal</div><div class="modal-chip-v">${fmt(S.modal||0)}</div></div><div style="font-size:11px;opacity:0.7;text-align:right">Dipotong pengeluaran<br>hari ini: ${fmt(tOut)}</div></div>`;
-  } else {mc.style.display='none';}
+  mc.style.display='block';
+  mc.innerHTML=`<div class="modal-chip"><div><div class="modal-chip-l"><i class="ti ti-wallet" aria-hidden="true"></i> Saldo modal saat ini</div><div class="modal-chip-v">${fmt(S.modal||0)}</div></div><div style="font-size:11px;opacity:0.7;text-align:right">Dipotong pengeluaran<br>hari ini: ${fmt(tOut)}</div></div>`;
+  
   document.getElementById('paySplit').innerHTML=`
     <div class="pc c"><div class="pc-l"><i class="ti ti-cash" aria-hidden="true"></i> Cash</div><div class="pc-v">${fmt(cIn)}</div><div class="pc-s">${cQty} cup</div></div>
     <div class="pc q"><div class="pc-l"><i class="ti ti-qrcode" aria-hidden="true"></i> QRIS</div><div class="pc-v">${fmt(qIn)}</div><div class="pc-s">${qQty} cup</div></div>`;
@@ -738,12 +741,31 @@ function showReport(){
     const dOut=de.reduce((a,e)=>a+e.amount,0);
     const dProfit=dIn-dOut;
     const dQty=ds.reduce((a,s)=>a+s.qty,0);
+    
     // Menu breakdown for this day
     const dmc={};ds.forEach(s=>{dmc[s.menu]=(dmc[s.menu]||{qty:0,total:0});dmc[s.menu].qty+=s.qty;dmc[s.menu].total+=s.total});
     const menuRows=Object.entries(dmc).sort((a,b)=>b[1].qty-a[1].qty).map(([n,v])=>`
       <div class="exp-item-row"><span>${n}</span><span style="display:flex;gap:10px"><span style="color:var(--color-text-secondary)">${v.qty} cup</span><span>${fmt(v.total)}</span></span></div>`).join('');
+      
+    // Expenses detail
     const expRows=de.length?de.map(e=>`
       <div class="exp-item-row"><span>${e.desc}<span class="exp-time">${e.time}</span></span><span style="color:#A32D2D">${fmt(e.amount)}</span></div>`).join(''):'<div style="font-size:12px;color:var(--color-text-secondary);padding:3px 0">Tidak ada pengeluaran</div>';
+    
+    // Modal flow for this day
+    const dModalLog = (S.modalLog||[]).filter(l => l.date === d);
+    const modalAdded = dModalLog.filter(l => l.type === 'tambah').reduce((a,l) => a + l.amount, 0);
+    const modalDeducted = dModalLog.filter(l => l.type === 'potong').reduce((a,l) => a + l.amount, 0);
+    
+    const modalSection = `
+      <div class="rpt-section"><i class="ti ti-wallet" aria-hidden="true"></i> Arus Modal Harian</div>
+      <div class="exp-item-row"><span>Modal Masuk (Tambah)</span><span style="color:#3B6D11">+ ${fmt(modalAdded)}</span></div>
+      <div class="exp-item-row"><span>Modal Keluar (Dipotong Pengeluaran)</span><span style="color:#A32D2D">- ${fmt(modalDeducted)}</span></div>
+      <div class="exp-item-row" style="border-top:1px solid var(--color-border-tertiary); padding-top:5px; font-weight:500">
+        <span>Selisih Modal Hari Ini</span>
+        <span style="color:${modalAdded - modalDeducted >= 0 ? '#3B6D11' : '#A32D2D'}">${fmt(modalAdded - modalDeducted)}</span>
+      </div>
+    `;
+
     const fmtDate=new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
     const profitColor=dProfit>=0?'#3B6D11':'#A32D2D';
     return `<div class="rpt-day">
@@ -758,7 +780,7 @@ function showReport(){
         </div>
       </div>
       <div class="rpt-day-body" style="display:none">
-        <div class="rpt-section"><i class="ti ti-coffee" aria-hidden="true"></i> Penjualan</div>
+        <div class="rpt-section"><i class="ti ti-coffee" aria-hidden="true"></i> Pendapatan Penjualan</div>
         <div class="mg" style="margin-bottom:8px">
           <div class="mc"><div class="mc-l">Cash</div><div class="mc-v g" style="font-size:14px">${fmt(dcash)}</div></div>
           <div class="mc"><div class="mc-l">QRIS</div><div class="mc-v b" style="font-size:14px">${fmt(dqris)}</div></div>
@@ -766,10 +788,11 @@ function showReport(){
           <div class="mc"><div class="mc-l">Cup</div><div class="mc-v" style="font-size:14px">${dQty}</div></div>
         </div>
         <div style="margin-bottom:8px">${menuRows||'<div style="font-size:12px;color:var(--color-text-secondary)">Tidak ada penjualan</div>'}</div>
-        <div class="rpt-section"><i class="ti ti-receipt" aria-hidden="true"></i> Pengeluaran</div>
+        <div class="rpt-section"><i class="ti ti-receipt" aria-hidden="true"></i> Rincian Pengeluaran</div>
         <div style="margin-bottom:6px">${expRows}</div>
-        <div style="display:flex;justify-content:space-between;padding:7px 0 2px;border-top:1px solid var(--color-border-tertiary);font-size:13px;font-weight:500">
-          <span>Profit hari ini</span>
+        ${modalSection}
+        <div style="display:flex;justify-content:space-between;padding:7px 0 2px;border-top:1px solid var(--color-border-tertiary);font-size:14px;font-weight:600;margin-top:8px">
+          <span>Profit Bersih Hari Ini</span>
           <span style="color:${profitColor}">${fmt(dProfit)}</span>
         </div>
       </div>
