@@ -1,3 +1,6 @@
+
+
+Nakku · HTML
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -98,58 +101,58 @@ tr:last-child td{border-bottom:none}
 .empty{text-align:center;padding:20px;color:var(--color-text-secondary);font-size:13px}
 #toast{position:absolute;bottom:14px;left:50%;transform:translateX(-50%) translateY(0);background:#5C7D4A;color:#fff;padding:7px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap;z-index:99}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
-
+ 
 /* Button press */
 .btn,.pk,.qb,.nav-btn,.logout-btn,.rb{transition:transform 0.1s,box-shadow 0.1s,background 0.15s,opacity 0.15s}
 .btn:active,.pk:active,.qb:active,.logout-btn:active{transform:scale(0.93);opacity:0.85}
 .rb:active{transform:scale(0.96)}
 .nav-btn:active{transform:scale(0.95)}
-
+ 
 /* Nav active underline slide */
 .nav-btn{position:relative;overflow:hidden}
 .nav-btn::after{content:'';position:absolute;bottom:0;left:50%;width:0;height:2px;background:#C8E8A0;transition:width 0.2s,left 0.2s}
 .nav-btn.active::after{width:100%;left:0}
 .nav-btn{border-bottom:none!important}
-
+ 
 /* Page fade-slide in */
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .page.active{animation:pageIn 0.2s ease}
-
+ 
 /* Card subtle entrance */
 @keyframes cardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card{animation:cardIn 0.22s ease both}
 .card:nth-child(2){animation-delay:0.04s}
 .card:nth-child(3){animation-delay:0.08s}
 .card:nth-child(4){animation-delay:0.12s}
-
+ 
 /* PIN dot pop */
 @keyframes dotPop{0%{transform:scale(1)}40%{transform:scale(1.4)}70%{transform:scale(0.9)}100%{transform:scale(1)}}
 .pd.pop{animation:dotPop 0.22s ease}
-
+ 
 /* Menu item bounce on qty change */
 @keyframes numBounce{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
 .qn.bump{animation:numBounce 0.18s ease}
-
+ 
 /* Primary btn ripple feel */
 .btn.p{position:relative;overflow:hidden}
 .btn.p::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.15);opacity:0;border-radius:inherit;transition:opacity 0.2s}
 .btn.p:active::after{opacity:1}
-
+ 
 /* Login card entrance */
 @keyframes lCardIn{from{opacity:0;transform:scale(0.96) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .lcard{animation:lCardIn 0.3s cubic-bezier(0.34,1.2,0.64,1)}
-
+ 
 /* Role button select pop */
 @keyframes rbPop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
 .rb.sel{animation:rbPop 0.18s ease}
-
+ 
 /* Metric card number change */
 @keyframes numFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .mc-v{animation:numFade 0.25s ease}
-
+ 
 /* Toast slide up */
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(-4px)}}
-
+ 
 /* Responsive */
 @media(max-width:480px){
   .mg{grid-template-columns:1fr 1fr}
@@ -201,10 +204,24 @@ button,input,select{touch-action:manipulation}
 .modal-chip{background:#27500A;color:#C8E8A0;border-radius:var(--border-radius-md);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
 .modal-chip-l{font-size:12px;opacity:0.8}
 .modal-chip-v{font-size:18px;font-weight:600}
+/* Big payment method picker (penjualan page) */
+.paym-wrap{margin-bottom:9px}
+.paym-lbl{font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:500}
+.paym-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.paym-btn{border-radius:var(--border-radius-md);padding:16px 10px;text-align:center;cursor:pointer;border:2.5px solid transparent;background:var(--color-background-secondary);transition:transform 0.1s,box-shadow 0.15s,border-color 0.15s,background 0.15s}
+.paym-btn:active{transform:scale(0.96)}
+.paym-btn .paym-ic{font-size:26px;margin-bottom:4px}
+.paym-btn .paym-txt{font-size:17px;font-weight:700;letter-spacing:0.3px}
+.paym-btn.cash{background:#EAF3DE;color:#3B6D11}
+.paym-btn.cash.sel{background:#3B6D11;color:#fff;border-color:#27500A;box-shadow:0 3px 10px rgba(59,109,17,0.35)}
+.paym-btn.qris{background:#E6F1FB;color:#185FA5}
+.paym-btn.qris.sel{background:#185FA5;color:#fff;border-color:#0C447C;box-shadow:0 3px 10px rgba(24,95,165,0.35)}
+@keyframes paymPop{0%{transform:scale(1)}45%{transform:scale(1.07)}100%{transform:scale(1)}}
+.paym-btn.sel{animation:paymPop 0.2s ease}
 </style>
-
+ 
 <div style="position:relative" id="app">
-
+ 
 <div id="loginScreen">
   <div class="hdr">
     <div class="hdr-l">
@@ -243,7 +260,7 @@ button,input,select{touch-action:manipulation}
     </div>
   </div>
 </div>
-
+ 
 <div id="mainScreen" style="display:none">
   <div class="hdr">
     <div class="hdr-l">
@@ -254,7 +271,7 @@ button,input,select{touch-action:manipulation}
   </div>
   <div class="nav" id="mainNav"></div>
   <div class="content">
-
+ 
     <div class="page active" id="page-dashboard">
       <div id="modalChip" style="display:none"></div>
       <div class="ps" id="paySplit"></div>
@@ -272,7 +289,7 @@ button,input,select{touch-action:manipulation}
         <div id="dLowStock"></div>
       </div>
     </div>
-
+ 
     <div class="page" id="page-penjualan">
       <div class="card">
         <div class="sec"><i class="ti ti-calendar" aria-hidden="true"></i> Tanggal transaksi</div>
@@ -283,15 +300,25 @@ button,input,select{touch-action:manipulation}
         <div class="ml" id="menuList"></div>
         <div style="margin-top:12px;border-top:0.5px solid var(--color-border-tertiary);padding-top:11px">
           <div class="sr"><span>Subtotal</span><span id="subtotal">Rp 0</span></div>
-          <div class="sr"><span>Metode bayar</span>
-            <select id="payM" style="width:100px;height:28px;font-size:13px"><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select>
+          <div class="paym-wrap">
+            <div class="paym-lbl"><i class="ti ti-wallet" aria-hidden="true"></i> Metode bayar</div>
+            <div class="paym-grid">
+              <div class="paym-btn cash sel" id="payBtn-Cash" onclick="setPay('Cash')">
+                <div class="paym-ic"><i class="ti ti-cash" aria-hidden="true"></i></div>
+                <div class="paym-txt">CASH</div>
+              </div>
+              <div class="paym-btn qris" id="payBtn-QRIS" onclick="setPay('QRIS')">
+                <div class="paym-ic"><i class="ti ti-qrcode" aria-hidden="true"></i></div>
+                <div class="paym-txt">QRIS</div>
+              </div>
+            </div>
           </div>
           <div class="sr t"><span>Total</span><span id="totalAmt" style="color:#3B6D11">Rp 0</span></div>
           <div class="br"><button class="btn p" onclick="submitSale()"><i class="ti ti-check" aria-hidden="true"></i> Simpan</button><button class="btn" onclick="resetCart()">Reset</button></div>
         </div>
       </div>
     </div>
-
+ 
     <div class="page" id="page-pengeluaran">
       <div class="card">
         <div class="sec"><i class="ti ti-cash" aria-hidden="true"></i> Catat pengeluaran</div>
@@ -307,7 +334,7 @@ button,input,select{touch-action:manipulation}
         <div class="tw"><table><thead><tr><th>Waktu</th><th>Keterangan</th><th>Jumlah</th></tr></thead><tbody id="expTb"></tbody></table></div>
       </div>
     </div>
-
+ 
     <div class="page" id="page-stok">
       <div class="card">
         <div class="sec"><i class="ti ti-package" aria-hidden="true"></i> Lapor pengambilan bahan</div>
@@ -327,7 +354,7 @@ button,input,select{touch-action:manipulation}
         <div class="tw"><table><thead><tr><th>Tgl & Waktu</th><th>Bahan</th><th>Jumlah</th><th>Oleh</th></tr></thead><tbody id="stokLog"></tbody></table></div>
       </div>
     </div>
-
+ 
     <div class="page" id="page-laporan">
       <div class="card">
         <div class="sec"><i class="ti ti-calendar" aria-hidden="true"></i> Rentang tanggal</div>
@@ -339,7 +366,7 @@ button,input,select{touch-action:manipulation}
       </div>
       <div id="rptOut"></div>
     </div>
-
+ 
     <div class="page" id="page-menu">
       <div class="card" id="addMenuCard">
         <div class="sec"><i class="ti ti-plus" aria-hidden="true"></i> Tambah menu baru</div>
@@ -354,7 +381,7 @@ button,input,select{touch-action:manipulation}
         <div class="tw"><table><thead><tr><th>Menu</th><th>Harga</th><th id="menuActTh"></th></tr></thead><tbody id="menuTb"></tbody></table></div>
       </div>
     </div>
-
+ 
     <div class="page" id="page-pengaturan">
       <div class="card" id="modalCard">
         <div class="sec"><i class="ti ti-wallet" aria-hidden="true"></i> Modal usaha</div>
@@ -402,17 +429,17 @@ button,input,select{touch-action:manipulation}
         <button class="btn p" onclick="submitRefill()">Isi ulang</button>
       </div>
     </div>
-
+ 
   </div>
 </div>
 <div id="syncStatus" style="display:none;position:fixed;top:0;left:0;right:0;background:#5C7D4A;color:#fff;font-size:12px;text-align:center;padding:4px;z-index:999;"></div>
 <div id="toast"></div>
 </div>
-
+ 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+ 
 const firebaseConfig = {
   apiKey: "AIzaSyCZUbZTeQ1sr2OPbUBOvG5juyooyYt2Z2k",
   authDomain: "nakku-matcha.firebaseapp.com",
@@ -421,13 +448,13 @@ const firebaseConfig = {
   messagingSenderId: "755849414014",
   appId: "1:755849414014:web:eb9f25c8c1cf84c16b5f2f"
 };
-
+ 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+ 
 const BAHAN=['Bubuk matcha','Plastik isi 2','Plastik isi 1','Krimer','Susu UHT','Madu','Cup','Selai strawberry','SKM','Kertas penutup','Sedotan','Maciato','Tisu','Cokelat','Taro','Bubuk Red Velvet'];
 const DEF_MENUS=[{id:1,name:'Usucha',price:10000},{id:2,name:'Matcha Latte',price:13000},{id:3,name:'Honey Matcha',price:16000},{id:4,name:'Cloud Matcha',price:16000},{id:5,name:'Chocolate Matcha',price:16000},{id:6,name:'Strawberry Matcha',price:18000},{id:7,name:'Matcha Taro Latte',price:18000}];
-
+ 
 let S={
   role:null,
   sales:[],
@@ -441,7 +468,9 @@ let S={
   modal:0,
   modalLog:[]
 };
-
+ 
+let selPay='Cash';
+ 
 // Simpan ke Firestore
 async function sv(){
   try{
@@ -459,7 +488,7 @@ async function sv(){
     });
   }catch(e){console.error('Gagal simpan:',e);toast('⚠️ Gagal sinkron, cek koneksi')}
 }
-
+ 
 // Load data dari Firestore & realtime listener
 async function initData(){
   showSyncStatus('Menghubungkan...');
@@ -502,22 +531,22 @@ async function initData(){
     showSyncStatus('⚠️ Offline');
   }
 }
-
+ 
 function showSyncStatus(msg){
   let el=document.getElementById('syncStatus');
   if(!el)return;
   el.textContent=msg;
   el.style.display=msg?'block':'none';
 }
-
+ 
 function fmt(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
 function today(){return new Date().toISOString().slice(0,10)}
 function tNow(){return new Date().toTimeString().slice(0,5)}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),2200)}
-
+ 
 // Expose semua fungsi ke global scope (karena pakai ES module)
 window.fmt=fmt;window.today=today;window.tNow=tNow;window.toast=toast;
-
+ 
 let pBuf='',sRole='owner';
 function selR(r){sRole=r;['owner','kar'].forEach(id=>{const el=document.getElementById('rb-'+id);const isNow=(id==='owner'?'owner':'karyawan')===r;el.classList.toggle('sel',isNow);if(isNow){el.style.animation='none';void el.offsetWidth;el.style.animation=''}});pBuf='';updDots();document.getElementById('perr').textContent=''}
 function updDots(){for(let i=0;i<4;i++){const d=document.getElementById('d'+i);const was=d.classList.contains('f');const now=i<pBuf.length;d.classList.toggle('f',now);if(now&&!was){d.classList.remove('pop');void d.offsetWidth;d.classList.add('pop')}}}
@@ -540,9 +569,9 @@ function doLogin(role){
   buildNav();showPage('dashboard');
 }
 function logout(){S.role=null;pBuf='';updDots();document.getElementById('perr').textContent='';document.getElementById('loginScreen').style.display='block';document.getElementById('mainScreen').style.display='none'}
-
+ 
 window.selR=selR;window.pk=pk;window.logout=logout;
-
+ 
 function buildNav(){
   const owP=[{id:'dashboard',ic:'ti-layout-dashboard',lb:'Dashboard'},{id:'laporan',ic:'ti-chart-bar',lb:'Laporan'},{id:'menu',ic:'ti-list',lb:'Menu'},{id:'pengaturan',ic:'ti-settings',lb:'Pengaturan'}];
   const karP=[{id:'dashboard',ic:'ti-layout-dashboard',lb:'Dashboard'},{id:'penjualan',ic:'ti-shopping-cart',lb:'Penjualan'},{id:'pengeluaran',ic:'ti-cash',lb:'Pengeluaran'},{id:'stok',ic:'ti-package',lb:'Stok'}];
@@ -568,7 +597,7 @@ function showPage(id){
   }
 }
 window.showPage=showPage;
-
+ 
 function rDash(){
   const t=today();
   const ts=S.sales.filter(s=>s.date===t);
@@ -601,27 +630,39 @@ function rDash(){
   const low=S.stock.filter(s=>s.qty<=s.min);
   document.getElementById('dLowStock').innerHTML=low.length?low.map(s=>`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> <b>${s.name}</b> — tersisa ${s.qty} (min: ${s.min})</div>`).join(''):'<div style="font-size:13px;color:var(--color-text-secondary);padding:5px 0">Semua stok aman ✓</div>';
 }
-
+ 
 function rMenuPicker(){
   S.cart={};
   document.getElementById('menuList').innerHTML=S.menus.map(m=>`
     <div class="mi"><div><div class="mi-n">${m.name}</div><div class="mi-p">${fmt(m.price)}</div></div>
     <div class="qc"><button class="qb" onclick="cc(${m.id},-1)">-</button><span class="qn" id="q${m.id}">0</span><button class="qb" onclick="cc(${m.id},1)">+</button></div></div>`).join('');
+  selPay='Cash';
+  const cb=document.getElementById('payBtn-Cash'),qb=document.getElementById('payBtn-QRIS');
+  if(cb&&qb){cb.classList.add('sel');qb.classList.remove('sel')}
   updT();
 }
+function setPay(p){
+  selPay=p;
+  const cb=document.getElementById('payBtn-Cash'),qb=document.getElementById('payBtn-QRIS');
+  cb.classList.toggle('sel',p==='Cash');
+  qb.classList.toggle('sel',p==='QRIS');
+  const sel=p==='Cash'?cb:qb;
+  sel.classList.remove('sel');void sel.offsetWidth;sel.classList.add('sel');
+}
+window.setPay=setPay;
 function cc(id,d){S.cart[id]=(S.cart[id]||0)+d;if(S.cart[id]<0)S.cart[id]=0;const el=document.getElementById('q'+id);el.textContent=S.cart[id];el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');updT()}
 function updT(){let t=0;S.menus.forEach(m=>t+=(S.cart[m.id]||0)*m.price);document.getElementById('subtotal').textContent=fmt(t);document.getElementById('totalAmt').textContent=fmt(t)}
 function resetCart(){rMenuPicker()}
 function submitSale(){
   const entries=S.menus.filter(m=>S.cart[m.id]>0);
   if(!entries.length){toast('Pilih menu dulu!');return}
-  const pay=document.getElementById('payM').value;
+  const pay=selPay;
   const date=document.getElementById('saleDatePick').value||today();
   entries.forEach(m=>S.sales.push({date,time:tNow(),menu:m.name,qty:S.cart[m.id],total:S.cart[m.id]*m.price,pay}));
-  sv();toast('Penjualan dicatat! ☕');resetCart();
+  sv();toast('Penjualan dicatat ('+pay+')! ☕');resetCart();
 }
 window.cc=cc;window.resetCart=resetCart;window.submitSale=submitSale;
-
+ 
 function rExpHist(){
   const t=document.getElementById('expDate').value||today();
   const te=S.expenses.filter(e=>e.date===t);
@@ -642,7 +683,7 @@ function submitExp(){
   rExpHist();
 }
 window.rExpHist=rExpHist;window.submitExp=submitExp;
-
+ 
 function rStok(){
   document.getElementById('stokItem').innerHTML=S.stock.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
   rStokList();rStokLog();
@@ -682,7 +723,7 @@ function submitRefill(){
   document.getElementById('refillQty').value='';
 }
 window.submitAmbil=submitAmbil;window.submitRefill=submitRefill;
-
+ 
 function rMenuTb(){
   const isOwner=S.role==='owner';
   document.getElementById('addMenuCard').style.display=isOwner?'block':'none';
@@ -715,7 +756,7 @@ function addMenu(){
 }
 function delMenu(id){S.menus=S.menus.filter(m=>m.id!==id);sv();toast('Menu dihapus');rMenuTb()}
 window.editMenu=editMenu;window.addMenu=addMenu;window.delMenu=delMenu;
-
+ 
 function showReport(){
   const from=document.getElementById('rptFrom').value;
   const to=document.getElementById('rptTo').value;
@@ -728,7 +769,7 @@ function showReport(){
   const tQty=rs.reduce((a,s)=>a+s.qty,0);
   const mc={};rs.forEach(s=>{mc[s.menu]=(mc[s.menu]||0)+s.qty});
   const top=Object.entries(mc).sort((a,b)=>b[1]-a[1]).slice(0,5);
-
+ 
   // Build per-date detail
   const allDates=new Set([...rs.map(s=>s.date),...re.map(e=>e.date)]);
   const sortedDates=Array.from(allDates).sort();
@@ -765,7 +806,7 @@ function showReport(){
         <span style="color:${modalAdded - modalDeducted >= 0 ? '#3B6D11' : '#A32D2D'}">${fmt(modalAdded - modalDeducted)}</span>
       </div>
     `;
-
+ 
     const fmtDate=new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
     const profitColor=dProfit>=0?'#3B6D11':'#A32D2D';
     return `<div class="rpt-day">
@@ -797,7 +838,7 @@ function showReport(){
         </div>
       </div>
     </div>`}).join('');
-
+ 
   document.getElementById('rptOut').innerHTML=`
     <div class="card">
       <div class="sec"><i class="ti ti-chart-bar" aria-hidden="true"></i> Ringkasan ${from} s/d ${to}</div>
@@ -826,7 +867,7 @@ function showReport(){
     </div>`;
 }
 window.showReport=showReport;
-
+ 
 function rModalDisplay(){
   const el=document.getElementById('modalDisplay');
   const sub=document.getElementById('modalSubText');
@@ -860,7 +901,7 @@ function resetModal(){
   sv();rModalDisplay();toast('Modal direset ke 0');
 }
 window.setModal=setModal;window.resetModal=resetModal;
-
+ 
 function chgPin(who){
   const np=document.getElementById(who==='owner'?'nOP':'nKP').value;
   const cp=document.getElementById(who==='owner'?'cOP':'cKP').value;
@@ -873,9 +914,11 @@ function chgPin(who){
   document.getElementById(who==='owner'?'cOP':'cKP').value='';
 }
 window.chgPin=chgPin;
-
+ 
 // Mulai app
 initData();
 </script>
 </body>
 </html>
+
+
