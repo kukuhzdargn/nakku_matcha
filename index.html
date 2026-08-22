@@ -58,9 +58,16 @@ tr:last-child td{border-bottom:none}
 .bdg.low{background:#FCEBEB;color:#A32D2D}
 .bdg.ok{background:#EAF3DE;color:#3B6D11}
 .ml{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.mi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.mi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px;display:flex;align-items:center;gap:8px}
+.mi-thumb{width:44px;height:44px;border-radius:10px;overflow:hidden;background:var(--color-background-tertiary);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.mi-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.mi-thumb .ti{font-size:19px;color:var(--color-text-secondary)}
+.mi-txt{flex:1;min-width:0}
 .mi-n{font-size:13px;font-weight:500;color:var(--color-text-primary)}
 .mi-p{font-size:12px;color:#3B6D11}
+.mtn-thumb{width:38px;height:38px;border-radius:8px;overflow:hidden;background:var(--color-background-tertiary);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.mtn-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.mtn-thumb .ti{font-size:16px;color:var(--color-text-secondary)}
 .qc{display:flex;align-items:center;gap:5px}
 .qb{width:24px;height:24px;border-radius:50%;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .qn{font-size:13px;font-weight:500;min-width:14px;text-align:center;color:var(--color-text-primary)}
@@ -378,7 +385,7 @@ button,input,select{touch-action:manipulation}
       </div>
       <div class="card">
         <div class="sec"><i class="ti ti-list" aria-hidden="true"></i> Daftar menu</div>
-        <div class="tw"><table><thead><tr><th>Menu</th><th>Harga</th><th id="menuActTh"></th></tr></thead><tbody id="menuTb"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th>Foto</th><th>Menu</th><th>Harga</th><th id="menuActTh"></th></tr></thead><tbody id="menuTb"></tbody></table></div>
       </div>
     </div>
  
@@ -433,6 +440,7 @@ button,input,select{touch-action:manipulation}
   </div>
 </div>
 <div id="syncStatus" style="display:none;position:fixed;top:0;left:0;right:0;background:#5C7D4A;color:#fff;font-size:12px;text-align:center;padding:4px;z-index:999;"></div>
+<input type="file" id="imgFileInput" accept="image/*" style="display:none">
 <div id="toast"></div>
 </div>
  
@@ -634,8 +642,11 @@ function rDash(){
 function rMenuPicker(){
   S.cart={};
   document.getElementById('menuList').innerHTML=S.menus.map(m=>`
-    <div class="mi"><div><div class="mi-n">${m.name}</div><div class="mi-p">${fmt(m.price)}</div></div>
-    <div class="qc"><button class="qb" onclick="cc(${m.id},-1)">-</button><span class="qn" id="q${m.id}">0</span><button class="qb" onclick="cc(${m.id},1)">+</button></div></div>`).join('');
+    <div class="mi">
+      <div class="mi-thumb">${m.img?`<img src="${m.img}" alt="${m.name}">`:'<i class="ti ti-cup" aria-hidden="true"></i>'}</div>
+      <div class="mi-txt"><div class="mi-n">${m.name}</div><div class="mi-p">${fmt(m.price)}</div></div>
+      <div class="qc"><button class="qb" onclick="cc(${m.id},-1)">-</button><span class="qn" id="q${m.id}">0</span><button class="qb" onclick="cc(${m.id},1)">+</button></div>
+    </div>`).join('');
   selPay='Cash';
   const cb=document.getElementById('payBtn-Cash'),qb=document.getElementById('payBtn-QRIS');
   if(cb&&qb){cb.classList.add('sel');qb.classList.remove('sel')}
@@ -730,6 +741,10 @@ function rMenuTb(){
   document.getElementById('menuActTh').textContent=isOwner?'Aksi':'';
   document.getElementById('menuTb').innerHTML=S.menus.map(m=>`
     <tr>
+      <td>
+        <div class="mtn-thumb">${m.img?`<img src="${m.img}" alt="${m.name}">`:'<i class="ti ti-cup" aria-hidden="true"></i>'}</div>
+        ${isOwner?`<button class="btn s" onclick="pickImg(${m.id})"><i class="ti ti-camera" aria-hidden="true"></i> Foto</button>`:''}
+      </td>
       <td>${m.name}</td>
       <td id="mp${m.id}">${fmt(m.price)}</td>
       <td>${isOwner?`<div style="display:flex;gap:5px">
@@ -756,6 +771,45 @@ function addMenu(){
 }
 function delMenu(id){S.menus=S.menus.filter(m=>m.id!==id);sv();toast('Menu dihapus');rMenuTb()}
 window.editMenu=editMenu;window.addMenu=addMenu;window.delMenu=delMenu;
+ 
+let pendingImgMenuId=null;
+function pickImg(id){
+  pendingImgMenuId=id;
+  document.getElementById('imgFileInput').click();
+}
+window.pickImg=pickImg;
+document.getElementById('imgFileInput').addEventListener('change',function(ev){
+  const file=ev.target.files[0];
+  if(!file||pendingImgMenuId===null)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const maxDim=320;
+      let w=img.width,h=img.height;
+      if(w>h){if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim}}
+      else{if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const dataUrl=canvas.toDataURL('image/jpeg',0.72);
+      const m=S.menus.find(x=>x.id===pendingImgMenuId);
+      if(m){
+        m.img=dataUrl;
+        sv();
+        toast('Foto '+m.name+' diperbarui!');
+        rMenuTb();
+        const salesPage=document.getElementById('page-penjualan');
+        if(salesPage&&salesPage.classList.contains('active'))rMenuPicker();
+      }
+      pendingImgMenuId=null;
+    };
+    img.onerror=function(){toast('Gagal memuat gambar');pendingImgMenuId=null};
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+  ev.target.value='';
+});
  
 function showReport(){
   const from=document.getElementById('rptFrom').value;
