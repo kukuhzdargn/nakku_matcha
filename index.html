@@ -1,6 +1,3 @@
-
-
-Nakku · HTML
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -439,14 +436,14 @@ button,input,select{touch-action:manipulation}
  
   </div>
 </div>
-<div id="syncStatus" style="display:none;position:fixed;top:0;left:0;right:0;background:#5C7D4A;color:#fff;font-size:12px;text-align:center;padding:4px;z-index:999;"></div>
+<div id="syncStatus" style="display:none;position:fixed;top:0;left:0;right:0;color:#fff;font-size:12px;text-align:center;padding:4px;z-index:999;"></div>
 <input type="file" id="imgFileInput" accept="image/*" style="display:none">
 <div id="toast"></div>
 </div>
  
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentSingleTabManager, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
  
 const firebaseConfig = {
   apiKey: "AIzaSyCZUbZTeQ1sr2OPbUBOvG5juyooyYt2Z2k",
@@ -458,7 +455,27 @@ const firebaseConfig = {
 };
  
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Aktifkan cache offline (IndexedDB). Dengan ini setiap input (penjualan, pengeluaran,
+// stok, dll) tetap tersimpan di HP walau tidak ada internet, lalu otomatis terkirim
+// ke server begitu HP kembali online — tanpa perlu kode tambahan di setiap fungsi input.
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentSingleTabManager({}) })
+});
+ 
+// ==== Status koneksi & antrian sinkron ====
+let isOnline = navigator.onLine;
+let pendingWrites = 0;
+window.addEventListener('online', () => { isOnline = true; updateConnBanner(); toast('🌐 Online lagi — menyinkronkan data...'); });
+window.addEventListener('offline', () => { isOnline = false; updateConnBanner(); toast('📴 Koneksi terputus — data tetap bisa dicatat'); });
+ 
+// Daftarkan service worker supaya tampilan aplikasi ini (HTML/CSS/JS)
+// juga tetap bisa dibuka walau HP sama sekali tidak ada internet.
+// (Letakkan file sw.js di folder yang sama dengan file HTML ini saat di-hosting)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
  
 const BAHAN=['Bubuk matcha','Plastik isi 2','Plastik isi 1','Krimer','Susu UHT','Madu','Cup','Selai strawberry','SKM','Kertas penutup','Sedotan','Maciato','Tisu','Cokelat','Taro','Bubuk Red Velvet'];
 const DEF_MENUS=[{id:1,name:'Usucha',price:10000},{id:2,name:'Matcha Latte',price:13000},{id:3,name:'Honey Matcha',price:16000},{id:4,name:'Cloud Matcha',price:16000},{id:5,name:'Chocolate Matcha',price:16000},{id:6,name:'Strawberry Matcha',price:18000},{id:7,name:'Matcha Taro Latte',price:18000}];
@@ -479,8 +496,10 @@ let S={
  
 let selPay='Cash';
  
-// Simpan ke Firestore
+// Simpan ke Firestore (bekerja offline berkat persistentLocalCache di atas)
 async function sv(){
+  pendingWrites++;
+  updateConnBanner();
   try{
     await setDoc(doc(db,'nakku','data'),{
       sales:S.sales,
@@ -494,12 +513,22 @@ async function sv(){
       modalLog:S.modalLog||[],
       updatedAt:Date.now()
     });
-  }catch(e){console.error('Gagal simpan:',e);toast('⚠️ Gagal sinkron, cek koneksi')}
+    // Catatan: walau sedang offline, setDoc di atas tetap "berhasil" —
+    // datanya disimpan dulu di cache HP, lalu benar-benar terkirim ke server
+    // otomatis begitu koneksi kembali. Tidak perlu simpan ulang manual.
+  }catch(e){
+    console.error('Gagal simpan:',e);
+    if(isOnline)toast('⚠️ Gagal sinkron, cek koneksi');
+  }finally{
+    pendingWrites--;
+    updateConnBanner();
+  }
 }
  
-// Load data dari Firestore & realtime listener
+// Load data dari Firestore & realtime listener (otomatis pakai cache kalau offline)
 async function initData(){
-  showSyncStatus('Menghubungkan...');
+  updateConnBanner();
+  if(isOnline)showSyncStatus('Menghubungkan...','sync');
   try{
     const snap=await getDoc(doc(db,'nakku','data'));
     if(snap.exists()){
@@ -514,8 +543,8 @@ async function initData(){
       S.modal=d.modal||0;
       S.modalLog=d.modalLog||[];
     }
-    showSyncStatus('');
-    // Realtime listener — update otomatis kalau ada perubahan dari HP lain
+    updateConnBanner();
+    // Realtime listener — update otomatis kalau ada perubahan dari HP lain / setelah sync
     onSnapshot(doc(db,'nakku','data'),(snap)=>{
       if(!snap.exists())return;
       const d=snap.data();
@@ -536,15 +565,29 @@ async function initData(){
     });
   }catch(e){
     console.error('Gagal load:',e);
-    showSyncStatus('⚠️ Offline');
+    if(isOnline){
+      showSyncStatus('⚠️ Gagal memuat data, cek koneksi','error');
+    }else{
+      showSyncStatus('📴 Offline — belum ada data tersimpan di HP ini','offline');
+    }
   }
 }
  
-function showSyncStatus(msg){
+function showSyncStatus(msg,type){
   let el=document.getElementById('syncStatus');
   if(!el)return;
   el.textContent=msg;
   el.style.display=msg?'block':'none';
+  el.style.background=type==='offline'?'#C97A2B':(type==='error'?'#A32D2D':'#5C7D4A');
+}
+function updateConnBanner(){
+  if(!isOnline){
+    showSyncStatus('📴 Mode offline — transaksi tetap bisa dicatat, otomatis sync saat online','offline');
+  } else if(pendingWrites>0){
+    showSyncStatus('🔄 Menyinkronkan data...','sync');
+  } else {
+    showSyncStatus('');
+  }
 }
  
 function fmt(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
@@ -670,7 +713,7 @@ function submitSale(){
   const pay=selPay;
   const date=document.getElementById('saleDatePick').value||today();
   entries.forEach(m=>S.sales.push({date,time:tNow(),menu:m.name,qty:S.cart[m.id],total:S.cart[m.id]*m.price,pay}));
-  sv();toast('Penjualan dicatat ('+pay+')! ☕');resetCart();
+  sv();toast(isOnline?('Penjualan dicatat ('+pay+')! ☕'):('Tersimpan offline ('+pay+') — sync otomatis ☕'));resetCart();
 }
 window.cc=cc;window.resetCart=resetCart;window.submitSale=submitSale;
  
@@ -689,7 +732,7 @@ function submitExp(){
   S.modal=Math.max(0,(S.modal||0)-amt);
   S.modalLog=S.modalLog||[];
   S.modalLog.push({date,time:tNow(),type:'potong',desc,amount:amt,modalAfter:S.modal});
-  sv();toast('Pengeluaran dicatat! Modal berkurang '+fmt(amt));
+  sv();toast((isOnline?'Pengeluaran dicatat! ':'Tersimpan offline! ')+'Modal berkurang '+fmt(amt));
   document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';
   rExpHist();
 }
@@ -722,7 +765,7 @@ function submitAmbil(){
   if(!s||qty<=0){toast('Input tidak valid');return}
   if(qty>s.qty){toast('Stok tidak cukup! Tersisa '+s.qty);return}
   s.qty-=qty;S.slog.push({date:today(),time:tNow(),name:s.name,qty,by:S.role});
-  sv();toast(s.name+' -'+qty+' dicatat');rStokList();rStokLog();
+  sv();toast((isOnline?'':'[offline] ')+s.name+' -'+qty+' dicatat');rStokList();rStokLog();
   document.getElementById('stokAlrt').innerHTML=s.qty<=s.min?`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Stok ${s.name} menipis! Tersisa ${s.qty}</div>`:'';
 }
 function submitRefill(){
@@ -730,7 +773,7 @@ function submitRefill(){
   const qty=parseInt(document.getElementById('refillQty').value);
   const s=S.stock.find(x=>x.id===id);
   if(!s||qty<=0){toast('Input tidak valid');return}
-  s.qty+=qty;sv();toast(s.name+' +'+qty+' ditambahkan');
+  s.qty+=qty;sv();toast((isOnline?'':'[offline] ')+s.name+' +'+qty+' ditambahkan');
   document.getElementById('refillQty').value='';
 }
 window.submitAmbil=submitAmbil;window.submitRefill=submitRefill;
@@ -974,5 +1017,3 @@ initData();
 </script>
 </body>
 </html>
-
-
