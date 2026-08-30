@@ -1,15 +1,15 @@
-// Service worker Nakku Matcha — cache app shell (HTML/CSS/JS/font) supaya
-// aplikasi tetap bisa DIBUKA walau HP sama sekali tidak ada internet.
+// Service worker Nakku Matcha — cache app shell (HTML/CSS/JS/manifest/ikon)
+// supaya aplikasi tetap bisa DIBUKA walau HP sama sekali tidak ada internet.
 // Data transaksi tetap ditangani terpisah oleh Firestore offline persistence
-// (lihat nakku.html), jadi request ke firestore/googleapis TIDAK di-cache di sini.
+// (lihat index.html), jadi request ke firestore/googleapis TIDAK di-cache di sini.
 
-const CACHE_NAME = 'nakku-matcha-shell-v1';
+const CACHE_NAME = 'nakku-matcha-shell-v2';
 
+// Tidak precache nama file spesifik di sini (supaya tidak error kalau nama file
+// berbeda) — file akan otomatis ke-cache satu-per-satu saat pertama kali diminta
+// browser (lihat fetch handler di bawah, pola stale-while-revalidate).
 self.addEventListener('install', (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.add('./nakku.html'))
-  );
 });
 
 self.addEventListener('activate', (event) => {
@@ -33,7 +33,9 @@ self.addEventListener('fetch', (event) => {
 
   if (req.method !== 'GET') return;
 
-  // Stale-while-revalidate untuk file aplikasi (HTML/CSS/JS/font icon) dan CDN lain
+  // Stale-while-revalidate: file apa pun yang diminta (HTML, manifest, ikon,
+  // font CDN, dst) otomatis disimpan ke cache saat pertama kali sukses diambil,
+  // lalu dipakai sebagai cadangan kalau nanti offline.
   event.respondWith(
     caches.match(req).then((cached) => {
       const network = fetch(req)
