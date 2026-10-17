@@ -172,6 +172,7 @@ tr:last-child td{border-bottom:none}
   .nav-btn{padding:9px 10px;font-size:12px}
   input,select{height:38px;font-size:14px}
   .btn{height:38px;font-size:13px}
+  .btn.s{height:28px;font-size:12px}
   .pk{height:46px;font-size:17px}
   table{font-size:12px}
   th,td{padding:6px 7px}
@@ -373,6 +374,52 @@ button,input,select{touch-action:manipulation}
       </div>
       <div id="rptOut"></div>
     </div>
+
+    <div class="page" id="page-takaran">
+      <div class="card">
+        <div class="sec"><i class="ti ti-calendar" aria-hidden="true"></i> Tanggal</div>
+        <input type="date" id="tkDate" onchange="rTakaran()">
+      </div>
+
+      <div class="card">
+        <div class="sec"><i class="ti ti-scale" aria-hidden="true"></i> Pemakaian bahan</div>
+        <div id="tkUsage"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec"><i class="ti ti-box" aria-hidden="true"></i> Sisa bahan (per pack)</div>
+        <div id="tkWarn"></div>
+        <div id="tkStock"></div>
+        <div style="margin-top:12px;border-top:0.5px solid var(--color-border-tertiary);padding-top:11px">
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Tambah bahan yang dipantau</div>
+          <div class="fr">
+            <div><lbl>Nama bahan</lbl><input id="gName" list="tkItems" placeholder="Bubuk matcha"></div>
+            <div><lbl>Satuan</lbl><input id="gUnit" placeholder="g / ml / pcs"></div>
+          </div>
+          <div class="fr">
+            <div><lbl>Isi 1 pack</lbl><input id="gPack" type="number" placeholder="800"></div>
+            <div><lbl>Peringatan di bawah</lbl><input id="gMin" type="number" placeholder="100"></div>
+          </div>
+          <button class="btn p" onclick="addGram()"><i class="ti ti-plus" aria-hidden="true"></i> Tambah</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec"><i class="ti ti-flask" aria-hidden="true"></i> Resep / takaran per menu</div>
+        <div style="margin-bottom:9px"><lbl>Menu</lbl><select id="tkMenu" onchange="rRcpList()"></select></div>
+        <div id="rcpList" style="margin-bottom:10px"></div>
+        <div class="fr">
+          <div><lbl>Bahan</lbl><input id="rItem" list="tkItems" placeholder="Bubuk matcha"></div>
+          <div><lbl>Jumlah</lbl><input id="rAmt" type="number" placeholder="8"></div>
+        </div>
+        <div class="fr">
+          <div><lbl>Satuan</lbl><input id="rUnit" placeholder="g / ml / pcs"></div>
+          <div></div>
+        </div>
+        <button class="btn p" onclick="addRcp()"><i class="ti ti-plus" aria-hidden="true"></i> Tambah ke resep</button>
+        <datalist id="tkItems"></datalist>
+      </div>
+    </div>
  
     <div class="page" id="page-menu">
       <div class="card" id="addMenuCard">
@@ -482,6 +529,8 @@ if('serviceWorker' in navigator){
  
 const BAHAN=['Bubuk matcha','Plastik isi 2','Plastik isi 1','Krimer','Susu UHT','Madu','Cup','Selai strawberry','SKM','Kertas penutup','Sedotan','Maciato','Tisu','Cokelat','Taro','Bubuk Red Velvet'];
 const DEF_MENUS=[{id:1,name:'Usucha',price:10000},{id:2,name:'Matcha Latte',price:13000},{id:3,name:'Honey Matcha',price:16000},{id:4,name:'Cloud Matcha',price:16000},{id:5,name:'Chocolate Matcha',price:16000},{id:6,name:'Strawberry Matcha',price:18000},{id:7,name:'Matcha Taro Latte',price:18000}];
+// Bahan yang dipantau per pack/gram (tab Takaran)
+const DEF_GRAM=[{name:'Bubuk matcha',unit:'g',pack:800,stock:800,min:100}];
  
 let S={
   role:null,
@@ -494,7 +543,9 @@ let S={
   kpin:'5678',
   cart:{},
   modal:0,
-  modalLog:[]
+  modalLog:[],
+  recipes:{},
+  gram:JSON.parse(JSON.stringify(DEF_GRAM))
 };
  
 let selPay='Cash';
@@ -514,6 +565,8 @@ async function sv(){
       kpin:S.kpin,
       modal:S.modal||0,
       modalLog:S.modalLog||[],
+      recipes:S.recipes||{},
+      gram:S.gram||[],
       updatedAt:Date.now()
     });
     // Catatan: walau sedang offline, setDoc di atas tetap "berhasil" —
@@ -545,6 +598,8 @@ async function initData(){
       S.kpin=d.kpin||'5678';
       S.modal=d.modal||0;
       S.modalLog=d.modalLog||[];
+      S.recipes=d.recipes||{};
+      S.gram=d.gram||JSON.parse(JSON.stringify(DEF_GRAM));
     }
     updateConnBanner();
     // Realtime listener — update otomatis kalau ada perubahan dari HP lain / setelah sync
@@ -560,6 +615,8 @@ async function initData(){
       S.kpin=d.kpin||S.kpin;
       S.modal=d.modal||0;
       S.modalLog=d.modalLog||[];
+      S.recipes=d.recipes||{};
+      S.gram=d.gram||JSON.parse(JSON.stringify(DEF_GRAM));
       // Refresh halaman yang sedang aktif
       if(S.role){
         const active=document.querySelector('.page.active');
@@ -627,7 +684,7 @@ function logout(){S.role=null;pBuf='';updDots();document.getElementById('perr').
 window.selR=selR;window.pk=pk;window.logout=logout;
  
 function buildNav(){
-  const owP=[{id:'dashboard',ic:'ti-layout-dashboard',lb:'Dashboard'},{id:'laporan',ic:'ti-chart-bar',lb:'Laporan'},{id:'menu',ic:'ti-list',lb:'Menu'},{id:'pengaturan',ic:'ti-settings',lb:'Pengaturan'}];
+  const owP=[{id:'dashboard',ic:'ti-layout-dashboard',lb:'Dashboard'},{id:'laporan',ic:'ti-chart-bar',lb:'Laporan'},{id:'takaran',ic:'ti-scale',lb:'Takaran'},{id:'menu',ic:'ti-list',lb:'Menu'},{id:'pengaturan',ic:'ti-settings',lb:'Pengaturan'}];
   const karP=[{id:'dashboard',ic:'ti-layout-dashboard',lb:'Dashboard'},{id:'penjualan',ic:'ti-shopping-cart',lb:'Penjualan'},{id:'pengeluaran',ic:'ti-cash',lb:'Pengeluaran'},{id:'stok',ic:'ti-package',lb:'Stok'}];
   const pages=S.role==='owner'?owP:karP;
   document.getElementById('mainNav').innerHTML=pages.map(p=>`<button class="nav-btn" id="nav-${p.id}" onclick="showPage('${p.id}')"><i class="ti ${p.ic}" aria-hidden="true"></i> ${p.lb}</button>`).join('');
@@ -642,6 +699,7 @@ function showPage(id){
   if(id==='stok')rStok();
   if(id==='pengeluaran'){document.getElementById('expDate').value=today();rExpHist();}
   if(id==='menu')rMenuTb();
+  if(id==='takaran')rTakaran();
   if(id==='laporan'){const t=today();const f=document.getElementById('rptFrom');const to=document.getElementById('rptTo');if(!f.value)f.value=t;if(!to.value)to.value=t;}
   if(id==='pengaturan'){
     const ri=document.getElementById('refillItem');if(ri)ri.innerHTML=S.stock.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
@@ -682,7 +740,9 @@ function rDash(){
   if(te.length){ec.style.display='block';document.getElementById('dExp').innerHTML=te.slice().reverse().map(e=>`<tr><td>${e.time}</td><td>${e.desc}</td><td>${fmt(e.amount)}</td></tr>`).join('')}
   else ec.style.display='none';
   const low=S.stock.filter(s=>s.qty<=s.min);
-  document.getElementById('dLowStock').innerHTML=low.length?low.map(s=>`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> <b>${s.name}</b> — tersisa ${s.qty} (min: ${s.min})</div>`).join(''):'<div style="font-size:13px;color:var(--color-text-secondary);padding:5px 0">Semua stok aman ✓</div>';
+  const lowG=(S.gram||[]).filter(g=>g.stock<=g.min);
+  const lowGHtml=lowG.map(g=>`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> <b>${g.name}</b> mau habis — sisa ${g.stock} ${g.unit}, segera isi ulang!</div>`).join('');
+  document.getElementById('dLowStock').innerHTML=lowGHtml+(low.length?low.map(s=>`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> <b>${s.name}</b> — tersisa ${s.qty} (min: ${s.min})</div>`).join(''):(lowGHtml?'':'<div style="font-size:13px;color:var(--color-text-secondary);padding:5px 0">Semua stok aman ✓</div>'));
 }
  
 function rMenuPicker(){
@@ -715,8 +775,23 @@ function submitSale(){
   if(!entries.length){toast('Pilih menu dulu!');return}
   const pay=selPay;
   const date=document.getElementById('saleDatePick').value||today();
-  entries.forEach(m=>S.sales.push({date,time:tNow(),menu:m.name,qty:S.cart[m.id],total:S.cart[m.id]*m.price,pay}));
-  sv();toast(isOnline?('Penjualan dicatat ('+pay+')! ☕'):('Tersimpan offline ('+pay+') — sync otomatis ☕'));resetCart();
+  const warned=[];
+  entries.forEach(m=>{
+    const q=S.cart[m.id];
+    S.sales.push({date,time:tNow(),menu:m.name,qty:q,total:q*m.price,pay});
+    // Potong stok bahan yang dipantau sesuai resep
+    rcpOf(m.id).forEach(r=>{
+      const g=(S.gram||[]).find(x=>x.name.toLowerCase()===r.item.toLowerCase());
+      if(g){
+        g.stock=Math.max(0,g.stock-r.amt*q);
+        if(g.stock<=g.min&&!warned.includes(g.name))warned.push(g.name);
+      }
+    });
+  });
+  sv();
+  toast(isOnline?('Penjualan dicatat ('+pay+')! ☕'):('Tersimpan offline ('+pay+') — sync otomatis ☕'));
+  if(warned.length)setTimeout(()=>toast('⚠️ '+warned.join(', ')+' mau habis, isi ulang!'),2400);
+  resetCart();
 }
 window.cc=cc;window.resetCart=resetCart;window.submitSale=submitSale;
  
@@ -1014,6 +1089,137 @@ function chgPin(who){
   document.getElementById(who==='owner'?'cOP':'cKP').value='';
 }
 window.chgPin=chgPin;
+
+// ===== TAKARAN & PEMAKAIAN BAHAN =====
+function rcpOf(menuId){return (S.recipes&&S.recipes[menuId])||[]}
+
+function usageFor(sales){
+  const u={};
+  sales.forEach(s=>{
+    const m=S.menus.find(x=>x.name===s.menu);
+    if(!m)return;
+    rcpOf(m.id).forEach(r=>{
+      u[r.item]=u[r.item]||{amt:0,unit:r.unit};
+      u[r.item].amt+=r.amt*s.qty;
+    });
+  });
+  return u;
+}
+
+function rTakaran(){
+  const dEl=document.getElementById('tkDate');
+  if(!dEl.value)dEl.value=today();
+  const d=dEl.value;
+  const ds=S.sales.filter(s=>s.date===d);
+  const cups=ds.reduce((a,s)=>a+s.qty,0);
+  const u=usageFor(ds);
+  const rows=Object.entries(u).sort((a,b)=>b[1].amt-a[1].amt);
+
+  // menu laku tapi resep belum diisi
+  const noRcp=[...new Set(ds.map(s=>s.menu))].filter(n=>{
+    const m=S.menus.find(x=>x.name===n);return m&&!rcpOf(m.id).length;
+  });
+
+  // rincian cup per menu
+  const mc={};ds.forEach(s=>mc[s.menu]=(mc[s.menu]||0)+s.qty);
+  const mcHtml=Object.entries(mc).map(([n,q])=>`${n} ${q}`).join(' · ');
+
+  document.getElementById('tkUsage').innerHTML=
+    `<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:7px">${cups} cup terjual${mcHtml?' — '+mcHtml:''}</div>`+
+    (noRcp.length?`<div class="alrt w">Resep belum diisi untuk: ${noRcp.join(', ')}</div>`:'')+
+    (rows.length?rows.map(([n,v])=>`<div class="sr"><span>${n}</span><span><b>${v.amt}</b> ${v.unit}</span></div>`).join(''):'<div class="empty">Belum ada pemakaian pada tanggal ini</div>');
+
+  // sisa bahan per pack
+  const G=S.gram||[];
+  const lowG=G.filter(g=>g.stock<=g.min);
+  document.getElementById('tkWarn').innerHTML=lowG.map(g=>`<div class="alrt w"><i class="ti ti-alert-triangle" aria-hidden="true"></i> <b>${g.name}</b> mau habis (sisa ${g.stock} ${g.unit}) — waktunya isi ulang!</div>`).join('');
+  document.getElementById('tkStock').innerHTML=G.length?G.map((g,i)=>{
+    const low=g.stock<=g.min;
+    const pct=Math.min(100,Math.round(g.stock/Math.max(g.pack,1)*100));
+    return `<div style="padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:500">${g.name}</span>
+        <span class="bdg ${low?'low':'ok'}">${g.stock} / ${g.pack} ${g.unit}</span>
+      </div>
+      <div class="sbw"><div class="sbb" style="width:${pct}%;background:${low?'#E24B4A':'#639922'}"></div></div>
+      <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+        <button class="btn s p" onclick="refillGram(${i})"><i class="ti ti-refresh" aria-hidden="true"></i> Isi ulang 1 pack</button>
+        <button class="btn s" onclick="setGram(${i})"><i class="ti ti-edit" aria-hidden="true"></i> Koreksi sisa</button>
+        <button class="btn s d" onclick="delGram(${i})"><i class="ti ti-trash" aria-hidden="true"></i></button>
+      </div>
+    </div>`}).join(''):'<div class="empty">Belum ada bahan yang dipantau</div>';
+
+  // dropdown menu & datalist bahan
+  const sel=document.getElementById('tkMenu');
+  const cur=sel.value;
+  sel.innerHTML=S.menus.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  if(cur&&S.menus.some(m=>String(m.id)===cur))sel.value=cur;
+  const names=[...new Set([...BAHAN,...G.map(g=>g.name),'Air putih'])];
+  document.getElementById('tkItems').innerHTML=names.map(n=>`<option value="${n}">`).join('');
+  rRcpList();
+}
+
+function rRcpList(){
+  const id=document.getElementById('tkMenu').value;
+  const list=rcpOf(parseInt(id));
+  document.getElementById('rcpList').innerHTML=list.length?list.map((r,i)=>`
+    <div class="exp-item-row"><span>${r.item}</span>
+      <span style="display:flex;gap:8px;align-items:center">${r.amt} ${r.unit}
+        <button class="btn s d" onclick="delRcp(${i})"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </span></div>`).join(''):'<div class="empty">Resep belum diisi</div>';
+}
+
+function addRcp(){
+  const id=parseInt(document.getElementById('tkMenu').value);
+  const item=document.getElementById('rItem').value.trim();
+  const amt=parseFloat(document.getElementById('rAmt').value);
+  const unit=document.getElementById('rUnit').value.trim()||'g';
+  if(!id||!item||!amt||amt<=0){toast('Lengkapi bahan, jumlah, satuan!');return}
+  S.recipes=S.recipes||{};
+  S.recipes[id]=S.recipes[id]||[];
+  S.recipes[id].push({item,amt,unit});
+  sv();toast('Ditambahkan ke resep');
+  document.getElementById('rItem').value='';document.getElementById('rAmt').value='';
+  rTakaran();
+}
+function delRcp(i){
+  const id=parseInt(document.getElementById('tkMenu').value);
+  if(!S.recipes||!S.recipes[id])return;
+  S.recipes[id].splice(i,1);sv();rTakaran();
+}
+
+function addGram(){
+  const name=document.getElementById('gName').value.trim();
+  const unit=document.getElementById('gUnit').value.trim()||'g';
+  const pack=parseFloat(document.getElementById('gPack').value);
+  const min=parseFloat(document.getElementById('gMin').value)||0;
+  if(!name||!pack||pack<=0){toast('Isi nama bahan dan isi 1 pack!');return}
+  S.gram=S.gram||[];
+  S.gram.push({name,unit,pack,stock:pack,min});
+  sv();toast('Bahan ditambahkan');
+  ['gName','gUnit','gPack','gMin'].forEach(x=>document.getElementById(x).value='');
+  rTakaran();
+}
+function refillGram(i){
+  const g=S.gram[i];if(!g)return;
+  if(!confirm('Isi ulang 1 pack ('+g.pack+' '+g.unit+') untuk '+g.name+'?'))return;
+  g.stock+=g.pack;sv();toast(g.name+' +'+g.pack+' '+g.unit);rTakaran();
+}
+function setGram(i){
+  const g=S.gram[i];if(!g)return;
+  const v=prompt('Sisa '+g.name+' sebenarnya ('+g.unit+'):',g.stock);
+  if(v===null)return;
+  const n=parseFloat(v);
+  if(isNaN(n)||n<0){toast('Angka tidak valid');return}
+  g.stock=n;sv();toast('Sisa dikoreksi');rTakaran();
+}
+function delGram(i){
+  if(!confirm('Hapus pemantauan bahan ini?'))return;
+  S.gram.splice(i,1);sv();rTakaran();
+}
+
+window.rTakaran=rTakaran;window.rRcpList=rRcpList;window.addRcp=addRcp;window.delRcp=delRcp;
+window.addGram=addGram;window.refillGram=refillGram;window.setGram=setGram;window.delGram=delGram;
  
 // Mulai app
 initData();
